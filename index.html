@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retatrutide Supplier Database</title>
+<style>
+:root {
+  --cn-green: #d4edda;
+  --cn-border: #c3e6cb;
+  --non-cn-red: #f8d7da;
+  --non-cn-border: #f5c6cb;
+  --table-stripe: #f8f9fa;
+  --header-bg: #212529;
+  --accent: #0d6efd;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size: 13px; line-height: 1.4; padding: 16px; background: #fff; color: #333; }
+h1 { font-size: 20px; margin-bottom: 4px; }
+.subtitle { color: #666; font-size: 13px; margin-bottom: 12px; }
+.stats-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.stat { background: #e9ecef; padding: 4px 10px; border-radius: 4px; font-size: 12px; }
+.stat.cn { background: var(--cn-green); }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+.controls input, .controls select, .controls button { font-size: 13px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; }
+.controls button { background: #0d6efd; color: #fff; border: none; cursor: pointer; }
+.controls button:hover { background: #0b5ed7; }
+.controls label { display: flex; align-items: center; gap: 4px; font-size: 12px; cursor: pointer; }
+table { border-collapse: collapse; width: 100%; white-space: nowrap; }
+th { background: var(--header-bg); color: #fff; padding: 6px 8px; text-align: left; font-weight: 600; cursor: pointer; position: relative; user-select: none; font-size: 12px; }
+th::after { content: ' ↕'; opacity: 0.3; }
+th.sorted-asc::after { content: ' ▲'; opacity: 1; }
+th.sorted-desc::after { content: ' ▼'; opacity: 1; }
+th:hover { background: #343a40; }
+td { padding: 6px 8px; border-bottom: 1px solid #dee2e6; vertical-align: top; white-space: normal; overflow-wrap: anywhere; }
+tr.cn { background: var(--cn-green); }
+tr.cn td { border-color: var(--cn-border); }
+tr.non-cn { background: #fff; }
+tr.no-cn-ship { background: var(--non-cn-red) !important; }
+tr.no-cn-ship td { border-color: var(--non-cn-border); }
+tr.hidden { display: none; }
+tr:hover { filter: brightness(0.97); }
+td.notes-cell, td.details-cell { min-width: 220px; white-space: normal; overflow-wrap: anywhere; }
+.detail-label { color: #555; font-weight: 600; }
+.detail-block { margin-bottom: 6px; }
+.source-link { color: #0d6efd; display: block; overflow-wrap: anywhere; }
+td textarea { width: 160px; height: 36px; font-size: 11px; border: 1px solid #ccc; border-radius: 3px; padding: 2px 4px; resize: vertical; }
+td textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px rgba(13,110,253,0.15); }
+select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1px solid #ccc; }
+.badge { display: inline-block; font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600; margin-right: 2px; }
+.badge-contacted { background: #198754; color: #fff; }
+.badge-captcha { background: #fd7e14; color: #fff; }
+.badge-no-form { background: #6c757d; color: #fff; }
+.badge-cn { background: #28a745; color: #fff; }
+.badge-not-cn { background: #dc3545; color: #fff; }
+.badge-ship { background: #17a2b8; color: #fff; }
+.badge-rfq { background: #ffc107; color: #333; }
+.badge-test { font-size: 10px; color: #666; cursor: help; border-bottom: 1px dotted #999; }
+.batch-badge { background: #6f42c1; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; cursor: help; }
+.domain-link { font-weight: 600; color: #0d6efd; text-decoration: none; }
+.domain-link:hover { text-decoration: underline; }
+.ex-import { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+.ex-import button { font-size: 12px; padding: 3px 10px; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999; }
+.toast.show { opacity: 1; }
+@media (max-width: 800px) { td, th { white-space: normal; } td textarea { width: 100px; } }
+</style>
+</head>
+<body>
+<h1>🧪 Retatrutide Supplier Database</h1>
+<p class="subtitle">Sources from Janoshik public test registry + live web research (22 Jul 2026). Buyer located in <b>China</b> — filter by "China-based" for domestic shipping.</p>
+
+<div class="stats-bar" id="stats-bar"></div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search domain, company, location..." style="flex:1;min-width:160px;">
+  <label><input type="checkbox" id="chinaOnly"> China-based only</label>
+  <label><input type="checkbox" id="shipChinaOnly"> Ships to China only</label>
+  <select id="statusFilter">
+    <option value="">All statuses</option>
+    <option value="new">🆕 New</option>
+    <option value="contacted">📩 Contacted</option>
+    <option value="replied">💬 Replied</option>
+    <option value="ordered">📦 Ordered</option>
+    <option value="dead">⛔ Dead</option>
+  </select>
+  <button onclick="saveExport()">📥 Export Notes</button>
+  <button onclick="downloadDatabase()">⬇️ Download this HTML</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importNotes(event)">
+  <button onclick="document.getElementById('importFile').click()">📤 Import Notes</button>
+  <button onclick="resetNotes()">🗑️ Reset Notes</button>
+  <span id="rowCount" style="font-size:12px;color:#666;"></span>
+</div>
+
+<div style="overflow-x:auto">
+<table id="table">
+<thead>
+<tr>
+<th data-col="domain">Domain</th>
+<th data-col="company">Company</th>
+<th data-col="china">Location / China</th>
+<th data-col="price">Price</th>
+<th data-col="moq">MOQ</th>
+<th data-col="contact">Contact</th>
+<th data-col="ships">Ships to CN</th>
+<th data-col="noChinaShip">No CN ship</th>
+<th data-col="certs">Certs</th>
+<th data-col="purity">Janoshik</th>
+<th data-col="status">Status</th>
+<th data-col="details">Details</th>
+<th data-col="notes">Notes</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="ex-import">
+  <span id="lastSaved" style="font-size:11px;color:#999;"></span>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPPLIERS = [
+  {
+    domain: "aurobiopeptide.com",
+    company: "AuroBiopeptide Technology (Shenzhen) Co., Ltd.",
+    location: "Room 905, China Science and Technology Development Institute Building, No.8 Keyuan Avenue, Hi-Tech Park, Nanshan District, Shenzhen, Guangdong, China 518057",
+    location_evidence: "Website states: China (Shenzhen)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "5mg*10vials $85.00; 10mg*10vials (mid-range, between $85-$350); 15mg*10vials (mid-range); 20mg*10vials (mid-range); 30mg*10vials $350.00",
+    price_notes: "Dropdown pricing from $85 to $350 for kit of 10 vials. Inquiry-based; B2B focused. COA reports for Retatrutide 15mg shown on About Us page.",
+    moq: "",
+    email: "sales@aurobiopeptide.com",
+    whatsapp: "+86 190 4119 0109 (primary), +86 191 0324 5495, +852 9224 8971, +852 4625 1278 (backup)",
+    telegram: "@AuroBioPeptide (also @AuroBioPeptide1)",
+    wechat: "",
+    certs: "COA, HPLC, Third-party testing",
+    purity: "99.87%",
+    test_count: 1,
+    shipping_notes: "Global shipping mentioned on homepage; claims 50+ countries served. Ships to Southeast Asia, Middle East, Europe, South America, Africa. Domestic China shipping implied by Shenzhen base.",
+    payment: "Credit/Debit cards, SEPA, Visa/Mastercard logos on checkout",
+    batch_group: "",
+    other_products: "Semaglutide, Tirzepatide, BPC-157, TB-500, Tesamorelin, Cagrilintide, GHK-Cu, NAD+, Glutathione, MOTS-c, Ipamorelin, LL-37, AOD-9604, Oxytocin Acetate, SNAP-8, Hyaluronic Acid, KLOW Blend, BAC Water",
+    notes: "Well-structured B2B site with Elementor. Has quality report library on About page including Retatrutide 15mg COA. Chinese company name: 奥洛生物肽科技（深圳）有限公司. Contact person: Xu Garden. 20+ mu plant area, ~200 employees.",
+    outreach_status: "no_form",
+    outreach_detail: "No public webform found; direct email/WhatsApp/Telegram only.",
+    source_urls: ["https://www.aurobiopeptide.com/", "https://www.aurobiopeptide.com/shop/", "https://www.aurobiopeptide.com/product/retarutide/", "https://www.aurobiopeptide.com/about-us/", "https://www.aurobiopeptide.com/faqs-2/", "https://www.aurobiopeptide.com/contact-2/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "certapeptides.com",
+    company: "CERTALAB S.R.L. (trading as CertaPeptides)",
+    location: "Intrarea Gheorghe Simionescu, Nr. 19, Ap. B26, Sector 1, Bucuresti, Romania, EU (CUI 54169956, J2026014773006)",
+    location_evidence: "Website states: Europe",
+    china_based: false,
+    ships_to_china: null,
+    prices: "Retatrutide 5mg €44.49; 10mg €69.99; 15mg €99.99; 20mg €118.99; 30mg €177.99; 50mg €275.99; Retatrutide Starter Kit (10mg + BAC water + accessories) €66.47",
+    price_notes: "Volume discounts: 3+ units 5% off, 5+ 10% off, 10+ 15% off. Free shipping over €200.",
+    moq: "",
+    email: "support@certapeptides.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "HPLC (99.3% avg purity), MS (mass spectrometry), Janoshik Analytical (ISO 17025, Czech Republic), COA for every batch, Endotoxin testing, Bioburden testing",
+    purity: "99.34%",
+    test_count: 1,
+    shipping_notes: "Ships to 27 EU member states + Switzerland, UK, Norway, Iceland, Israel. EU carrier network, 11-14 business days, free shipping over €200. No customs paperwork within EU. Does NOT appear to ship to China.",
+    payment: "SEPA bank transfer, Paysera, Credit/Debit cards",
+    batch_group: "",
+    other_products: "Semaglutide (vials + oral tablets), Tirzepatide, BPC-157, GHK-Cu, Epitalon, Ipamorelin, Selank, Glow Blend, Starter Kits, Bacteriostatic Water",
+    notes: "Live site returns RSS feed only (broken). Data from Wayback Machine snapshot (May 2026). EU-based (Romania), NOT China-based. Exceptionally transparent: publishes every COA with Janoshik verification links. Research-use-only disclaimer prominent. Not suitable for China domestic buyer — no China shipping evident.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://web.archive.org/web/20260517140456/https://certapeptides.com/", "https://web.archive.org/web/20260517140509/https://certapeptides.com/shop/retatrutide"],
+    source: "janoshik",
+    reachable: false
+  },
+  {
+    domain: "crystalpeptides.eu",
+    company: "Crystal Peptides",
+    location: "EU",
+    location_evidence: "",
+    china_based: null,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "",
+    moq: "",
+    email: "",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "",
+    purity: "99.85% avg 99.55%",
+    test_count: 3,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "Site is entirely JavaScript-rendered (React/Next.js). Both live site and Wayback Machine snapshots return empty HTML shells with only meta tags (author: Crystal Peptides, twitter: @crystalpeptides, facebook-domain-verification present). No content extractable via read tool. Would need browser automation to render. Web search returned generic AI safety response, not actual product/contact data. No contact/shipping/product info recoverable.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://crystalpeptides.eu/", "https://crystalpeptides.eu/shop", "https://crystalpeptides.eu/contact", "https://web.archive.org/web/20260604164305/https://crystalpeptides.eu/"],
+    source: "janoshik",
+    reachable: false
+  },
+  {
+    domain: "hangzhoupeps.com",
+    company: "",
+    location: "China (likely)",
+    location_evidence: "",
+    china_based: null,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "",
+    moq: "",
+    email: "",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "",
+    purity: "99.65%",
+    test_count: 1,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "SSL certificate verification error on HTTPS, then connection closed on HTTP. No Wayback Machine captures found (404). Web search returned generic AI response, no actual site data. Domain name suggests Hangzhou-based peptide supplier. Completely unreachable — may be defunct or geo-blocked.; Site unreachable: SSL certificate error on HTTPS, socket connection close on HTTP (both with and without www prefix). Wayback Machine returns 404 — no historical snapshots found. Domain name suggests Hangzhou, Zhejiang, China-based peptide supplier but no data could be salvaged. Web search returned no supplier-specific results.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["http://hangzhoupeps.com", "https://web.archive.org/web/2025/hangzhoupeps.com", "https://hangzhoupeps.com", "http://www.hangzhoupeps.com"],
+    source: "janoshik",
+    reachable: false
+  },
+  {
+    domain: "hkuppeptide.com",
+    company: "HK Youpu Biotechnology Co., Ltd. (香港优普肽生物科技有限公司)",
+    location: "Hong Kong (HK Youpu Biotechnology Co., Ltd.)",
+    location_evidence: "Website states: China",
+    china_based: false,
+    ships_to_china: null,
+    prices: "Retatrutide 10mg $10.00 (sale, was $75.00); Retatrutide 15mg $10.00 (sale, was $75.00)",
+    price_notes: "Heavily discounted sale prices. All products listed at $10 with crossed-out $75 'original' price. Likely promotional/placeholder pricing. Contact via WhatsApp for actual bulk/volume pricing.",
+    moq: "",
+    email: "alinatrade888@gmail.com",
+    whatsapp: "+852 9411 0243 (primary), +852 5627 0611 (secondary)",
+    telegram: "",
+    wechat: "",
+    certs: "COA, HPLC, MS (mass spectrometry)",
+    purity: "99.82%",
+    test_count: 1,
+    shipping_notes: "Shipping policy page returns 404. Claims 'free shipping' and 'fast delivery' on about page but details are lorem ipsum placeholder text. Products exported to Europe, America, Southeast Asia, Middle East, Latin America per about page.",
+    payment: "Credit card (WooCommerce checkout)",
+    batch_group: "99.818%/20mg batch: vicopeptide.com; Batch cluster: 147614,147615",
+    other_products: "Semaglutide 10mg/15mg/20mg, Cagrilintide 5mg, GHK-CU 50mg/100mg, MT-2 10mg",
+    notes: "Hong Kong-based (not mainland China). About page has Chinese company name: 香港优普肽生物科技有限公司. Claims GLP-1 focus. Site has 'coming soon' overlays on shop/product pages requiring login to access. Product pages visible on homepage carousel. WooCommerce-based. Low-effort site with lorem ipsum placeholder text, suggesting active but not professionally complete.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://hkuppeptide.com/", "https://hkuppeptide.com/product/product-name-9/", "https://hkuppeptide.com/about/", "https://hkuppeptide.com/contact/", "https://hkuppeptide.com/shop/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "hmmpeptide.com",
+    company: "HMM Peptide",
+    location: "No explicit address found on site. Meta keywords: 'Chinese-made peptides, Peptide manufacturer'. WhatsApp number is +852 (Hong Kong). Factory photos are generic stock.",
+    location_evidence: "Website claims USA shipping",
+    china_based: true,
+    ships_to_china: true,
+    prices: "TR10 (Retatrutide 10mg vial) $60.00; TR30 (Retatrutide 30mg vial) $110.00; RT10 (Retatrutide 10mg vial, alternate SKU) $104.00",
+    price_notes: "Prices listed as single-vial retail. TR10=$60/10mg, TR30=$110/30mg, RT10=$104/10mg. Factory-direct wholesale pricing claimed. Likely negotiable for bulk orders.",
+    moq: "",
+    email: "rosyhmmpep@gmail.com (appears truncated: rosyhmmpep@gmai on site)",
+    whatsapp: "+852 5649 9164 (contact person: Rosy)",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik Analytical testing, COA, HPLC, Third-party lab verification",
+    purity: "99.59%",
+    test_count: 1,
+    shipping_notes: "Stable delivery worldwide: USA, UK, Australia, Germany, France, Malaysia, Philippines, etc. 7-15 day delivery. Ships via FedEx, UPS, DHL, or domestic express lines. 'Domestic express lines' suggests China domestic shipping available.",
+    payment: "Contact via WhatsApp for payment details",
+    batch_group: "",
+    other_products: "BBG70, TSM10, BC10, CU50, K80, MS10, NJ500, SM10 (Semaglutide)",
+    notes: "Self-describes as 'Factory direct sales, Wholesale price'. Meta keywords include 'Chinese-made peptides, 99% Purity Peptides'. Claims Janoshik third-party testing with reports available. About page details production system and quality control. Email appears broken on site (truncated @gmail). No company registration or physical address found. Product naming uses cryptic codes (TR=Retatrutide, RT=Retatrutide alt, SM=Semaglutide). Site Elementor-based, relatively professional.",
+    outreach_status: "contacted",
+    outreach_detail: "Webform submitted successfully: “Thanks for contacting us! We will be in touch with you shortly.”",
+    source_urls: ["https://hmmpeptide.com/", "https://hmmpeptide.com/product/tr10/", "https://hmmpeptide.com/product/tr30/", "https://hmmpeptide.com/product/rt10/", "https://hmmpeptide.com/about/", "https://hmmpeptide.com/contact/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "hpebio.com",
+    company: "Hangzhou Hpe Biotechnology Co., Ltd. (HPEBIO)",
+    location: "Hangzhou, Zhejiang, China",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: null,
+    prices: "5mg $44; 10mg $57; 15mg $77; 20mg $99; 30mg $129; 40mg $154; 50mg $176; 60mg $251; 100mg $319",
+    price_notes: "USD per vial. 99% purity claimed. All sizes/prices transparently listed on product page.",
+    moq: "10 vials/1 box retail; 50 boxes custom",
+    email: "moczomagrann@gmail.com",
+    whatsapp: "+447514450014 (Yvette)",
+    telegram: "",
+    wechat: "",
+    certs: "99% Purity, Janoshik Analytical, COA available on site",
+    purity: "99.88%",
+    test_count: 1,
+    shipping_notes: "Same-day ship. US 7-10d (UPS/FedEx). Europe 8-12d (DHL). Others: USPS/EMS/dedicated lines.",
+    payment: "USDT, BTC, USDC, Ethereum",
+    batch_group: "",
+    other_products: "Tirzepatide, Semaglutide, MOTS-C, BPC157, TB500, NAD+, BBG70, KLOW80, Tesamorelin, GHK-CU, BB10, Ipamorelin, KPV, DSIP, KissPeptin-10, Epithalon, PT-141, IG01, Snap8, CJC-1295, CP10, Selank, and more",
+    notes: "China manufacturer (Hangzhou). UK (+44) and HK (+852) WhatsApp numbers. All Gmail contacts. Crypto-only payments. Research chemical disclaimer. Only site with fully transparent public pricing.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual CAPTCHA required on Request a Quote form.",
+    source_urls: ["https://www.hpebio.com/", "https://www.hpebio.com/products/retatrutide-5mg.html", "https://www.hpebio.com/about-us.html", "https://www.hpebio.com/contact-us.html", "https://www.hpebio.com/certificate.html", "https://www.hpebio.com/pkg-shp.html", "https://www.hpebio.com/products.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "hspeptides.com",
+    company: "Henan Shengming Biotechnology Research Institute Co., Ltd. (HS Peptides Ltd)",
+    location: "Hong Kong (registered address) / Henan, China (operational base)",
+    location_evidence: "Website states: China",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public prices. All products show 'No price'. Retatrutide sold as RT10 (10mg) and RT15 (15mg). All pricing via direct inquiry.",
+    moq: "No minimum order quantity. Sample orders supported.",
+    email: "1324700548@qq.com",
+    whatsapp: "+852 66472759",
+    telegram: "",
+    wechat: "",
+    certs: "cGMP, COA, MSDS, HPLC, Janoshik (third-party testing per batch)",
+    purity: "99.80%",
+    test_count: 1,
+    shipping_notes: "FedEx shipping. Ships within 1-3 business days after payment. 7-15 days delivery. Experienced with cold chain and customs clearance.",
+    payment: "Bank Transfer, Bitcoin",
+    batch_group: "",
+    other_products: "Semaglutide (SM), Tirzepatide (TR), Cagrilintide (CGL), Mazdutide (MZD)",
+    notes: "Products use coded names (RT=retatrutide). Chinese Wukong CMS platform. Research chemical disclaimer. Also uses HSpeptides@gmail.com as secondary contact. All prices via direct inquiry only.",
+    outreach_status: "contacted",
+    outreach_detail: "Webform submitted successfully: “congratulations, Data submitted successfully!”",
+    source_urls: ["https://www.hspeptides.com/", "https://www.hspeptides.com/pro_58171873.html", "https://www.hspeptides.com/pro_58171874.html", "https://www.hspeptides.com/bk_28612346.html", "https://www.hspeptides.com/bk_28612347.html", "https://www.hspeptides.com/doc_28612349_0_0_1.html", "https://www.hspeptides.com/pro_28612350_0_0_1.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "htraresearch.cn",
+    company: "HTRA Peptides",
+    location: "Yiwu City, Zhejiang Province, China",
+    location_evidence: "Website states: China (Zhejiang)",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No prices listed. Reta product page is image-only with no specifications or pricing. All 7 products under HUAGONGPIN category have no pricing.",
+    moq: "",
+    email: "htrapeptide@gmail.com",
+    whatsapp: "+852 66823390",
+    telegram: "",
+    wechat: "",
+    certs: "",
+    purity: "99.80%",
+    test_count: 1,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "",
+    other_products: "Tirzepatide (Tirze), Semaglutide (Sema), MT2, and 3 other unlabeled products under HUAGONGPIN category",
+    notes: "Minimal CMS site with leftover demo content from 2018. No pricing, no e-commerce, no certs claimed. Contact only via Gmail and HK WhatsApp. Yiwu, Zhejiang-based. Low-effort site maintenance.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://htraresearch.cn/", "https://htraresearch.cn/product/html/?141.html", "https://htraresearch.cn/product/class/?74.html", "https://htraresearch.cn/page/html/about.php", "https://htraresearch.cn/page/html/contact.php"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "huahepeptide.com",
+    company: "Huahe Peptide Technology Co., Ltd.",
+    location: "No. 16888, Lilu Road, Haizhu District, Guangzhou, China",
+    location_evidence: "Hong Kong (+852) contact numbers",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public prices. Reta 10mg product page has full specification sheet (≥99% purity, lyophilized powder, -20°C storage) but no pricing. Inquiry via WhatsApp/email.",
+    moq: "",
+    email: "postmaster@huahepeptide.com",
+    whatsapp: "+85269094087",
+    telegram: "",
+    wechat: "",
+    certs: "COA, HPLC, MS, cGMP, ≥99% purity",
+    purity: "99.77%",
+    test_count: 1,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "99.772%/9.74mg batch: ktswpeptide.com; Batch cluster: 196378,196379,196381",
+    other_products: "Tirzepatide (Tirz 10mg), BPC-157 10mg, and full product catalog across multiple categories",
+    notes: "Guangzhou-based manufacturer claiming since 2006. 4600+ customers and 35+ IP claimed. Multiple HK (+852) and UK (+44) WhatsApp numbers. adminbuy.cn CMS template. No e-commerce. Research chemical disclaimer.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.huahepeptide.com/", "https://www.huahepeptide.com/?about/", "https://www.huahepeptide.com/?contact/", "https://www.huahepeptide.com/?lm1/44.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "innopeptide.com",
+    company: "InnoPeptide",
+    location: "China (unspecified city). Warehouses: Hong Kong and United States.",
+    location_evidence: "Website states: USA / Europe (ships within)",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public prices. Reta product page shows only 'Ask For A Quote' button. No vial sizes, pack sizes, or pricing disclosed publicly.",
+    moq: "",
+    email: "support@innopeptide.com",
+    whatsapp: "+852 9440 7950",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik Laboratory tested, COA, ≥98% purity (typical), ≥99% HPLC tested",
+    purity: "99.95% avg 99.64%",
+    test_count: 5,
+    shipping_notes: "Ships from HK and US warehouses to 35+ countries. US domestic 3-day. International 3-7 business days transit + 24hr packing + 72hr logistics = 5-15 days total. DHL/FedEx/UPS. Free reship if lost or seized by customs (once).",
+    payment: "Bitcoin, ETH, USDT, USDC, Other Cryptocurrencies, Bank Transfer (T/T), Wise",
+    batch_group: "",
+    other_products: "Cagrilin (Cagrilintide), GLOW (BBG70), KLOW (KL80), Tirz (Tirzepatide), Peptide raw materials, Custom peptides",
+    notes: "WordPress/WooCommerce site with Avada theme. China-based manufacturer claiming 5+ years exp. Site author 'innopeptideguanliyuan' (管理员 = admin in Chinese). Also operates under Qingli Peptide brand (info@qinglipeptide.com / +852 4748 8025). No Telegram/WeChat. US-focused branding despite China base. Additional WhatsApp numbers: +852 4748 1920, +852 4748 8025, +1 334 370 3454.",
+    outreach_status: "contacted",
+    outreach_detail: "Webform submitted successfully: “Thank you for your message. We will reply you within one working day.”",
+    source_urls: ["https://innopeptide.com/", "https://innopeptide.com/product/reta/", "https://innopeptide.com/about-us/", "https://innopeptide.com/contact/", "https://innopeptide.com/products/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "ktswpeptide.com",
+    company: "Kangtai Company (KTSW Peptide)",
+    location: "N813, L3, Tower A, Ping An Finance Center, No. 5033 Yitian Road, Futian District, Shenzhen, Guangdong, China",
+    location_evidence: "Website states: China (Shenzhen)",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public prices. Retatrutide appears as two separate listings (Retatrutide 10mg and Reta 10mg) with specification tables but no pricing. All via WhatsApp/email inquiry.",
+    moq: "",
+    email: "wgj@ktswpeptide.com",
+    whatsapp: "+85247111689",
+    telegram: "",
+    wechat: "",
+    certs: "COA/HPLC (test report image for Retatrutide, dated ~2026-07-16)",
+    purity: "99.77%",
+    test_count: 1,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "99.772%/9.74mg batch: huahepeptide.com; Batch cluster: 196378,196379,196381",
+    other_products: "Tirzepatide (Tirz 10mg), Cagrilin 10mg, Semaglutide + Cagrilintide combos, Mazdutide 10mg, Survodutide 10mg, AOD9604, MOTS-C, SLU-PP-332, Tesamorelin, VIP, BPC157+TB500, TB500, SS-31, NAD+, Glutathione, IGF-1LR3, HGH, Ipamorelin, GHRP-6, CJC-1295 DAC/NO-DAC, Thymalin, LL37, MT-2, GLOW, ARA290, BOTOX, Lemon Bottle, Pinealon, KPV, and 100+ more across 4 categories",
+    notes: "Shenzhen-based. Claims established 2008 (about page) or 2006 (homepage). adminbuy.cn CMS. HK (+852) WhatsApp numbers. No WeChat/Telegram. HPLC test report image available. Additional WhatsApps: +85244844293, +85244413998. No e-commerce. Email domain @ktswpeptide.com.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.ktswpeptide.com/", "https://www.ktswpeptide.com/?about/", "https://www.ktswpeptide.com/?contact/", "https://www.ktswpeptide.com/?lm2/31.html", "https://www.ktswpeptide.com/?lm2/77.html", "https://www.ktswpeptide.com/?list_16/201.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "licensedpeptides.com",
+    company: "Licensed Peptides INC",
+    location: "1489 W Palmetto Park Rd, Boca Raton, FL 33486, USA",
+    location_evidence: "",
+    china_based: false,
+    ships_to_china: false,
+    prices: "",
+    price_notes: "",
+    moq: "",
+    email: "service@licensedpeptides.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "GMP, HPLC, Mass Spectrometry, Endotoxin-Free (ISO/IEC 17025:2017), COA, Sterility testing",
+    purity: "99.72%",
+    test_count: 1,
+    shipping_notes: "Ships ONLY within United States (including minor outlying islands). Free FedEx 2-Day on orders over $200. Same-day shipping if ordered before 4PM PST Mon-Fri.",
+    payment: "credit/debit card, bank transfer, alternative methods",
+    batch_group: "",
+    other_products: "tirzepatide (LP2-T), semaglutide, retatrutide not found, BPC-157, TB-500, NAD+, MOTS-C, ipamorelin, sermorelin, tesamorelin, GHK-Cu, SS-31, LP3-R",
+    notes: "US retail vendor, no retatrutide in catalog. Sells rebranded GLP-1s as 'LP2-T' (tirzepatide), 'LP3-R' (retatrutide-analog? — no retatrutide search results found). Claims 6X testing. Requires account registration to view full catalog.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://licensedpeptides.com/", "https://licensedpeptides.com/?s=retatrutide&post_type=product", "https://licensedpeptides.com/contact/", "https://licensedpeptides.com/shipping-delivery/", "https://licensedpeptides.com/about/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "lkpeptech.com",
+    company: "Laiko / LK Peptide",
+    location: "China (likely)",
+    location_evidence: "",
+    china_based: null,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "Quote only — product page says 'Inquiry' with no listed prices. Contact via WhatsApp/email for pricing.",
+    moq: "",
+    email: "lk.pep.global@gmail.com",
+    whatsapp: "+44 7873 753772",
+    telegram: "https://twitter.com/yourhandle (placeholder — not real Telegram)",
+    wechat: "",
+    certs: "99%+ purity, third-party lab testing (Czech Republic), COA",
+    purity: "99.25%",
+    test_count: 1,
+    shipping_notes: "Claims efficient international shipping + privacy protection. Shipping photos within 24h, tracking in 48-72h. Claims global delivery to Europe and America. Mentions 4-7 day delivery to most of US. Bank transfer or cryptocurrency payment. Ships within 2 business days of payment.",
+    payment: "bank transfer, cryptocurrency",
+    batch_group: "",
+    other_products: "semaglutide, tirzepatide, melanotan II, BPC157, TB500, selank, epithalon, semax, SS-31",
+    notes: "No physical address anywhere on site. All social media links are placeholders (xtemos.studio demo theme). Telegram link actually points to Twitter. UK phone/WhatsApp (+44). Website is a generic WooCommerce template with placeholder FAQ text. Suspicious credibility. Retatrutide product page has no chemical details — just placeholder FAQ about subscriptions. Treat with caution.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.lkpeptech.com/", "https://www.lkpeptech.com/product/retatrutide/", "https://www.lkpeptech.com/about-us/", "https://www.lkpeptech.com/contact-us/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "llybio.com",
+    company: "LLYBIO",
+    location: "China (likely)",
+    location_evidence: "",
+    china_based: null,
+    ships_to_china: null,
+    prices: "5mg-100mg: $55-$480; MOQ: 10 vials/1 kit",
+    price_notes: "Range pricing by mg strength. 5mg up to 100mg options available.",
+    moq: "10 vials/1 kit",
+    email: "LLYbio@outlook.com",
+    whatsapp: "+44 7514451750, +44 7845995445",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik Analytical (third-party), COA, factory quality inspection",
+    purity: "99.58%",
+    test_count: 1,
+    shipping_notes: "Worldwide shipping via FedEx, UPS, DHL, Royal Mail. USA: 6-12 days, UK: 8-12 days, Europe & other: 9-16 days. Ships within 1-2 days. Door-to-door delivery.",
+    payment: "USDT, USDC, BTC, ETH",
+    batch_group: "",
+    other_products: "tirzepatide, semaglutide, MOTS-c, BPC 157, TB500, NAD+, HCG, GLOW70, klow80, tesamorelin, ipamorelin, semax, selank",
+    notes: "Global supplier with UK WhatsApp numbers. No physical address listed. Claims Janoshik testing. Built on same Chinese CMS platform (悟空建站) as mjtpeptides. Likely China-based but operating through UK front numbers.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.llybio.com/", "https://www.llybio.com/pro_58890214.html", "https://www.llybio.com/bk_28832892.html", "https://www.llybio.com/bk_28832894.html", "https://www.llybio.com/bk_28857234.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "mandybio.com",
+    company: "Hangzhou Mandi Technology Biological Co., Ltd. (Mandy)",
+    location: "Hangzhou, Zhejiang, China",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: true,
+    prices: "5mg: $45; 10mg: $XX (range: 5mg 45$ to 100mg 395$); full spec range 5mg-100mg: $45-$395",
+    price_notes: "Brand: Mandy. MOQ: 10 vials/1 box. Price increases with mg strength up to 100mg at $395.",
+    moq: "10 vials/1 box",
+    email: "dann45154@gmail.com, mandy0805000@gmail.com, chnpeptide@gmail.com, mdy676593@gmail.com, m41176961@gmail.com",
+    whatsapp: "+447707302807, +447849382399, +85261503421, +85259309080, +85257772384, +44 7922660811, +85253904191",
+    telegram: "t.me/MD_Jessie, t.me/Olivia08005",
+    wechat: "",
+    certs: "GMP, ISO 9001, HPLC, Mass Spectrometry, COA, 99%+ purity",
+    purity: "99.90% avg 99.84%",
+    test_count: 2,
+    shipping_notes: "Ships worldwide. USA: UPS, FedEx, dedicated line (7-10 days). Europe: DHL, dedicated line (8-12 days). Also USPS, EMS, DPD, TNT. Same-day shipping after payment. Ships from China domestic as manufacturer. Crypto payment preferred.",
+    payment: "USDT, BTC, USDC, ETH",
+    batch_group: "",
+    other_products: "tirzepatide, semaglutide, MOTS-c, BPC 157, TB500, NAD+, blend peptides (BBKG80, KLOW80, GLOW70)",
+    notes: "Established 2014. China-based manufacturer with own R&D and production line. Exports 80% to Europe, also Russia, US, UK, Czech Republic, Netherlands, Australia. Multiple Gmail addresses and HK/UK WhatsApp numbers. Mandy is one of the better-established China peptide suppliers in this batch.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on contact form.",
+    source_urls: ["https://www.mandybio.com/", "https://www.mandybio.com/products/retatrutide-5mg.html", "https://www.mandybio.com/about-us.html", "https://www.mandybio.com/Shipping-Packing.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "meipeptide.com",
+    company: "Meipeptide",
+    location: "China (likely)",
+    location_evidence: "",
+    china_based: null,
+    ships_to_china: null,
+    prices: "10 vials (5mg/vial): $120.00; Options: 5mg, 10mg, 15mg, 20mg per vial",
+    price_notes: "Starting from $120.00 for 10 vials kit. No detailed per-mg pricing on site — contact for quote. Product page lists options at 5mg, 10mg, 15mg, 20mg/vial but all show same base $120.",
+    moq: "10 vials",
+    email: "admin@1meipeptide.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "HPLC, Mass Spectrometry, COA",
+    purity: "99.66%",
+    test_count: 1,
+    shipping_notes: "Worldwide door-to-door via special line (USPS/DHL/FedEx), agent handles customs clearance. 12-15 days typical, sometimes 7-9 days. Tracking appears only after clearing customs. DHL/FedEx express may require self-clearance and tax payment. Reship guaranteed if parcel lost.",
+    payment: "Western Union, T/T, BTC (Bitcoin), PayPal",
+    batch_group: "99.657%/11.01mg batch: reta-peptide.com; Batch cluster: 71592,71881",
+    other_products: "tirzepatide (Tirz), semaglutide (Sema), tesamorelin, BPC 157, cagrilintide",
+    notes: "Manufacturer with own lab and production line. Cannot order directly on site — must email admin@1meipeptide.com. Strong fraud warning about impersonators. Only @1meipeptide.com emails are official. No physical address disclosed. Claims worldwide shipping with customs clearance included. Uses Shopify-like platform.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.meipeptide.com/", "https://www.meipeptide.com/products/retatrutide-17245143", "https://www.meipeptide.com/pages/about-us", "https://www.meipeptide.com/pages/contact", "https://www.meipeptide.com/pages/shipping-delivery"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "mjtpeptides.com",
+    company: "佛山市南海区迈捷涛商贸行 (Foshan Nanhai Maijietao Trading Company / MJT Peptides)",
+    location: "CHOUYIN MANSION, 158 WANGCHAO ROAD, HANGZHOU, CHINA (contact page) / Guangdong, China (footer)",
+    location_evidence: "Website states: China",
+    china_based: true,
+    ships_to_china: true,
+    prices: "Retatrutide 5mg*10vials: $70.00; Options: 5mg, 10mg, 15mg, 20mg, 30mg, 40mg, 50mg, 60mg per vial * 10 vials",
+    price_notes: "$70.00 base price for 5mg*10vials kit. Higher mg strengths available but pricing not differentiated on site — likely quote per strength.",
+    moq: "10 vials per kit",
+    email: "mjtbussiness@gmail.com",
+    whatsapp: "+852 55753862",
+    telegram: "",
+    wechat: "",
+    certs: "GMP, 99%+ purity",
+    purity: "99.94%",
+    test_count: 1,
+    shipping_notes: "Shipping & Returns page mentioned but not detailed on site. Ships worldwide implied by global footprint claims. Footer mentions 'Shipping & Returns' and 'FAQ' links without content.",
+    payment: "",
+    batch_group: "",
+    other_products: "semaglutide, tirzepatide, BPC 157, TB500, MOTS-c, NAD+, GHK-Cu, HCG, HMG, various blends, L-carnitine, over 60+ peptides listed",
+    notes: "Registered as a trading company (商贸行) in Foshan, Guangdong but contact address is Hangzhou. Hong Kong phone number (+852). Large product catalog (60+ items) with coded names. Built on same CMS platform as LLYBIO. GMP claim but no certs displayed.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual sliding CAPTCHA required on contact form.",
+    source_urls: ["https://www.mjtpeptides.com/", "https://www.mjtpeptides.com/pro_58824715.html", "https://www.mjtpeptides.com/bk_28797827.html", "https://www.mjtpeptides.com/bk_28797829.html", "https://www.mjtpeptides.com/pro_28797825_0_0_1.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "novapeptide.shop",
+    company: "Novapeptide Biotechnology (Shanghai) Co., Ltd.",
+    location: "Room 1203, Puruan Building, No.2 Boyun Road, Zhangjiang Hi-Tech Park, Pudong New Area, Shanghai, China 201203",
+    location_evidence: "Website states: China (Shanghai)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "5mg*10vials $85; 10mg*10vials $130; 15mg*10vials $175; 20mg*10vials $230; 30mg*10vials $350",
+    price_notes: "Price range $85-$350 depending on vial size. Dropdown selection: 5mg, 10mg, 15mg, 20mg, 30mg (×10 vials each).",
+    moq: "",
+    email: "kuanyan705@gmail.com",
+    whatsapp: "+86 19103245495",
+    telegram: "@NovaPeptide8",
+    wechat: "",
+    certs: "HPLC, COA",
+    purity: "99.87%",
+    test_count: 1,
+    shipping_notes: "Express special line, door to door including customs clearance. Claims 7-15 days delivery. Reship if parcel lost. Worldwide shipping badge on site.",
+    payment: "Western Union, T/T (bank transfer), BTC (Bitcoin), PayPal",
+    batch_group: "",
+    other_products: "tirzepatide, semaglutide, cagrilintide, TB-500, tesamorelin, and 3 other peptide products listed",
+    notes: "Site says 'OU-PEPTIDE is a manufacturer of peptides, have our own research lab, and production line.' Guarantees QC: 'samples provided will meet the needs of our clients and we will bear the risk of default.' Bulk discounts available. Contact person: Yan Feng. Footer copyright says '2026 oupeptide' — possible shared brand with ouropeptides.com.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://novapeptide.shop/", "https://novapeptide.shop/product/retarutide/", "https://novapeptide.shop/contact/", "https://novapeptide.shop/products/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "optimumsourceresearch.com",
+    company: "Optimum Source Research",
+    location: "United States (manufacture stated as USA, US fulfillment center, ships from US warehouse)",
+    location_evidence: "",
+    china_based: false,
+    ships_to_china: false,
+    prices: "10mg vial $109.99; 20mg vial $129.99",
+    price_notes: "Product branded 'Reta-3'. Free shipping on orders $100+. 10% off first order (WELCOME10). Coupon codes visible.",
+    moq: "",
+    email: "support@optimumsourceresearch.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik (third-party HPLC/MS), Freedom Diagnostics, Public COA Library",
+    purity: "99.57%",
+    test_count: 1,
+    shipping_notes: "US shipping only. No international shipping. Orders before 2PM CST ship same business day. UPS Ground, USPS Priority Mail, UPS 3-Day/2nd Day/Next Day. Free shipping on $100+. Signature confirmation for orders over $300.",
+    payment: "Bitcoin, Stripe, WooPayments (credit/debit cards)",
+    batch_group: "",
+    other_products: "tirzepatide, semaglutide, cagrilintide, BPC-157, TB-500, SS-31, Semax, Selank, MOTS-C, GHK-Cu, IGF-1 LR3, Vitamin B12, Glutathione, 5-Amino-1MQ, Semax, Selank",
+    notes: "US domestic-only research peptide vendor. Retatrutide product page links to publicly verifiable Janoshik COAs showing 99%+ purity. Claims ≥99% HPLC purity on every batch. High site quality — clean design, clear policies.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://optimumsourceresearch.com/", "https://optimumsourceresearch.com/product/r-10mg-triple-agonist-gip-glp-1-glucagon/", "https://optimumsourceresearch.com/shipping-policy/", "https://optimumsourceresearch.com/contact-2/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "ouropeptides.com",
+    company: "Ouro Peptides Limited",
+    location: "247-249 Old Brompton Road, London, SW5 9HP, United Kingdom. Companies House: 17129783. ICO Registration: C1910960.",
+    location_evidence: "",
+    china_based: false,
+    ships_to_china: false,
+    prices: "Retatrutide 30mg £229.00",
+    price_notes: "Single dose/size shown on homepage. Product detail page URL returned 404 — possibly newly added. Listed under 'Metabolic Research' category.",
+    moq: "",
+    email: "info@ouropeptides.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "HPLC (third-party), Mass Spectrometry, Batch-specific Certificate of Analysis",
+    purity: "99.86%",
+    test_count: 1,
+    shipping_notes: "UK shipping only. No international shipping. Same-day dispatch before 15:00. Royal Mail Tracked 48/24, Special Delivery, DPD Next Day. Free shipping on orders over threshold. Tamper-evident packaging. Signature required over £300.",
+    payment: "Credit/debit card (checkout)",
+    batch_group: "",
+    other_products: "NAD+, BPC-157/TB-500 blend, tirzepatide, SS-31, epithalon, cerebrolysin, dihexa, DSIP, IGF-1 LR3, kisspeptin, KLOW 80, melanotan 2, MOTS-C, bacteriostatic water",
+    notes: "UK-only premium peptide vendor. Claims >99% assay purity. Each product dispatched with batch-specific CoA. High-quality site design with pen-based NAD+ kit as flagship product. Not relevant for China-based buyer.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://ouropeptides.com/", "https://ouropeptides.com/contact-us/", "https://ouropeptides.com/shipping/", "https://ouropeptides.com/shop/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "peptidegurus.com",
+    company: "Peptide Gurus",
+    location: "Glendale, AZ, USA (warehouses also in Europe, Canada, UK, Mexico)",
+    location_evidence: "Website states: USA (ships US & Canada)",
+    china_based: false,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "Quote only — 'Contact To Order'. No public pricing displayed. Two products: Retatrutide 5mg and Retatrutide 30mg.",
+    moq: "",
+    email: "info@peptidegurus.com",
+    whatsapp: "required field on inquiry form — not publicly displayed",
+    telegram: "@Peptidegurus2",
+    wechat: "",
+    certs: "Janoshik (third-party, >98% purity), GMP (claimed partnered manufacturers), ISO 9001:2008 (claimed), WHO/GMP (claimed), COA, HPLC, MS",
+    purity: "99.51% avg 99.36%",
+    test_count: 2,
+    shipping_notes: "Global shipping claimed. Warehouses in USA, Europe, Canada, UK, Mexico. 'Fast and compliant domestic shipping from US-based warehouse' for US orders.",
+    payment: "Zelle, CashApp, Venmo, bank transfer, crypto",
+    batch_group: "",
+    other_products: "semaglutide, tirzepatide, cagrilintide, SS-31, SLU PP 332, NMN, HCG, oxytocin, follistatin, super MIC B vitamin, peptide raw powder, pharmaceutical machines",
+    notes: "US-based with global shipping including warehouses worldwide. Retatrutide requires quote. Janoshik test reports displayed. Warning on site about impersonation/scams. Claims 'American-made' peptides sourced from WHO/GMP and ISO certified manufacturers. Also sells pharmaceutical production machinery. Multi-language site (14+ languages).",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://peptidegurus.com/", "https://peptidegurus.com/product/retatrutide-30mg/", "https://peptidegurus.com/product/retatrutide-10mg-2/", "https://peptidegurus.com/contact-us-2/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "qhpeptides.com",
+    company: "Qihang Technology Co., Ltd.",
+    location: "Shop 301-09, 2nd Floor, Building 3, Tianyi Auto Trade Service Park, 69 East Jiaotong Road, Yongyang Subdistrict, Lishui District, Nanjing, China",
+    location_evidence: "Website states: China (HK phone)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "Quote only — 'Send Inquiry' button. No listed prices. Product page is barebones with generic placeholder text.",
+    moq: "",
+    email: "tina@qhpeptides.com",
+    whatsapp: "+852 65597344",
+    telegram: "",
+    wechat: "",
+    certs: "COA (claims products tested for purity)",
+    purity: "99.88%",
+    test_count: 1,
+    shipping_notes: "Not explicitly stated on site. FAQ mentions shipping labels and tracking via email. Claims to test products for purity.",
+    payment: "",
+    batch_group: "",
+    other_products: "NAD+, WA10, Vitamin B12, VIP, tirzepatide, tesamorelin, TB500, survodutide, SNAP-8, sermorelin, semax, semaglutide, selank, PT-141",
+    notes: "China-based manufacturer. Site is basic CMS with auto-translate feature. Retatrutide product page has placeholder content ('Overview of the light removal tower'). Multi-language site (50+ languages). Address in Nanjing's Lishui District. The company name 'Qihang Technology' suggests a broader chemical/trading company. Contact: Tina.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://qhpeptides.com/", "https://qhpeptides.com/?lm1/123.html", "https://qhpeptides.com/?contact/", "https://qhpeptides.com/?about/", "https://qhpeptides.com/?news/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "rayshine-peptide.com",
+    company: "Rayshine Peptide Biochemicals Ltd. (Ruixing Peptide Biochemistry Co., Ltd.)",
+    location: "16-1602, Building A, Science and Technology Building, New Industrial Park, Chang'an Hi-Tech Zone, Xi'an, Shaanxi, China",
+    location_evidence: "Website states: China (Shaanxi)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "5mg-60mg vials $56-$350",
+    price_notes: "Price range listed as $56-$350 across sizes. Options: RT5 (5mg), RT10 (10mg), RT15 (15mg), RT20 (20mg), RT30 (30mg), RT40 (40mg), RT50 (50mg). Exact per-vial pricing requires inquiry. Two retatrutide product listings on site.",
+    moq: "1 box",
+    email: "admin@rayshine-peptide.com",
+    whatsapp: "+852 67392798",
+    telegram: "",
+    wechat: "QR code available on site",
+    certs: "HPLC (in-house QC), COA (lab test), 99% purity claimed",
+    purity: "99.66%",
+    test_count: 1,
+    shipping_notes: "Worldwide shipping via Fedex/UPS/DHL/USPS/TNT/EMS. America 5-7 days, Europe 7-10 days, SE Asia 10-15 days. Claims 100% safe delivery. Resend free for shipping issues. Domestic China shipping obviously supported given factory location.",
+    payment: "T/T (bank transfer), BTC, USDT, PayPal (noted: accounts deactivated from time to time)",
+    batch_group: "",
+    other_products: "tirzepatide, semaglutide, cagrilintide, mazdutide, survodutide, BPC-157, TB-500, HGH, HCG, GHK-Cu, AOD-9604, SLU-PP-332, NAD+, PT-141, melanotan 1&2, ipamorelin, CJC-1295, MOTS-C, epithalon, thymosin alpha-1, sermorelin, IGF-1 LR3, IGF-DES, SS-31, kisspeptin-10, 5-amino-1MQ, oxytocin, hexarelin, HMG, DSIP, GHRP-2/6, LL-37, KPV, VIP, pinealon, PNC-27, semax, selank, dermorphin, Lipo-C, glutathione, snap-8, cerebrolysin, thymalin, ara-290, BAC water",
+    notes: "China-based peptide factory (est. 2019). 3500m² production space, 11 production lines, 100+ stable cooperation companies. Two contact reps: Lisa Peng (Sales Manager, WA +852 67392798, Discord: lisarayshinepeptide) and Madeline Li (WA +852 5649 3372, Discord: madelinepeptide). Claims full refund for quality problems, resend for shipping issues. Accepts TT/BTC/USDT with full refund guarantee. Product page shows COA/HPLC lab test images. Strongest match for China-based buyer — domestic factory with international shipping capability.",
+    outreach_status: "contacted",
+    outreach_detail: "Waiting for response — Nicholas contacted Madeline directly.",
+    source_urls: ["https://rayshine-peptide.com/", "https://rayshine-peptide.com/ProDetail.aspx?ProId=135", "https://rayshine-peptide.com/About.aspx?ClassID=23", "https://rayshine-peptide.com/About.aspx?ClassID=2", "https://rayshine-peptide.com/Product.aspx?typeid=1&page=6"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "reta-peptide.com",
+    company: "reta-peptide (claims manufacturer with own lab)",
+    location: "Ships from China (stated on About page). No specific address found.",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: true,
+    prices: "Retatrutide 10mg 10vials $135.00 USD",
+    price_notes: "Online checkout disabled. Must order via email/WhatsApp for price list. Banner says site cannot accept orders/payments.",
+    moq: "",
+    email: "admin@reta-peptide.com",
+    whatsapp: "+86 15820903569 (Tina); +852 67221827 (Jane); +86 19137926464 (Doris); +86 17638513883 (Gavin)",
+    telegram: "@super_chem (Gavin)",
+    wechat: "",
+    certs: "HPLC, Mass Spectrometry, In-house lab testing, Third-party lab testing (Janoshik suggested)",
+    purity: "99.86% avg 99.76%",
+    test_count: 2,
+    shipping_notes: "Ship by special line, USPS, DHL or Fedex. Door to door. 12-15 days typical. Customs clearance included. Reship if lost.",
+    payment: "Western Union, T/T bank transfer, BTC, USDT, USDC",
+    batch_group: "99.657%/11.01mg batch: meipeptide.com; Batch cluster: 71592,71881",
+    other_products: "Tirzepatide, Semaglutide, Cagrilintide, BPC-157, Lipo-C",
+    notes: "Shopify site. Warning about scammers using their test reports. Claims to be manufacturer with own research lab and production line. Multiple Chinese +86 WhatsApp numbers and HK +852. Site has a banner warning about Lazarus Labs Australia being a scammer using their test reports.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual hCaptcha required on contact form.",
+    source_urls: ["https://reta-peptide.com", "https://reta-peptide.com/pages/contact", "https://reta-peptide.com/pages/about-us", "https://reta-peptide.com/pages/shipping-delivery", "https://reta-peptide.com/products/retatrutide"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "royal-peptides.com",
+    company: "Royal Peptides USA Canada",
+    location: "USA (meta: 'Royal Peptides USA Canada')",
+    location_evidence: "Website states: USA / Canada",
+    china_based: false,
+    ships_to_china: false,
+    prices: "Retatrutide Single Vial $55 - $330 (5mg-60mg options)",
+    price_notes: "Volume pricing: 3-5 vials save 5%, 6-9 save 10%, 10+ shop kits. Free shipping over $300.",
+    moq: "",
+    email: "info@royal-peptides.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "3rd Party Tested, 99%+ Purity, cGMP-compliant laboratory, COA Transparency, Janoshik testing",
+    purity: "99.51%",
+    test_count: 1,
+    shipping_notes: "USA and Canada shipping only. Estimated delivery up to 4 business days. Free shipping on orders over $300. No refund policy. Not responsible for customs issues.",
+    payment: "Visa, MasterCard, American Express, Discover, PayPal, Apple Pay",
+    batch_group: "",
+    other_products: "Tirzepatide, Semaglutide, Bacteriostatic Water, BPC-157, TB-500, MOTS-C, GHK-Cu, blends, oral capsules, healing/growth peptides (60+ products)",
+    notes: "Professional USA-based research peptide vendor. Strong brand, WordPress/WooCommerce. 'Research Use Only'. Supports 24hr support. US phone number (Arizona area code 520). All sales final, no refunds.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://royal-peptides.com", "https://royal-peptides.com/shop/retatrutide-vial/", "https://royal-peptides.com/contact/", "https://royal-peptides.com/shipping-returns/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "sahepeptides.com",
+    company: "Henan Sahe Polypeptide Co., Ltd.",
+    location: "Room 84, 7th Floor, Building A, Greenland Yuansheng International, No. 49, Jinshui East Road, Zhengzhou Area (Zhengdong), Henan Pilot Free Trade Zone, China",
+    location_evidence: "Website states: Hong Kong",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "RFQ only. Price list provided via WhatsApp/email. Products use code names (RT10=Retatrutide 10mg).",
+    moq: "",
+    email: "3312896358@qq.com",
+    whatsapp: "+852 5497 1444",
+    telegram: "",
+    wechat: "",
+    certs: "Factory quality inspection lab testing, Third-party lab testing, Purity greater than 99%, COA available",
+    purity: "99.48%",
+    test_count: 1,
+    shipping_notes: "US/UK/Australia/East Asia: 5-7 days. Other countries: 10-15 days. Ship from factory warehouse to Hong Kong freight forwarder then international express. Customs clearance support. Philippines orders track via internal network.",
+    payment: "",
+    batch_group: "",
+    other_products: "Semaglutide (SM10), Tirzepatide (TR10), Retatrutide (RT10), plus codes for 5AD, XT100, 2S10, CU100, DS5, ET10, KS10, MS10. Claims ~200 peptide types.",
+    notes: "Claims manufacturer with factory. Products use code names on public site. Site accessible via http only (https has self-signed cert error). Basic template site. Free shipping for $99+ orders.",
+    outreach_status: "no_form",
+    outreach_detail: "No public webform found; direct email/WhatsApp only.",
+    source_urls: ["http://www.sahepeptides.com", "http://www.sahepeptides.com/bk_28460928.html", "http://www.sahepeptides.com/bk_28460926.html", "http://www.sahepeptides.com/pro_57461090.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "sigmatech-peptide.com",
+    company: "Hangzhou sigmabiotech-peptide Ltd (Sigma-tech)",
+    location: "No. 77, Shilongshan Industrial Zone, Xihu District, Hangzhou City, Zhejiang Province, China 310024",
+    location_evidence: "Website states: China (Hangzhou)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "Retatrutide peptide 5mg-120mg (10vials/kit) $55-$400",
+    price_notes: "Price range $55-$400 per 10-vial kit depending on strength (5mg-120mg). Tirzepatide $37-$188/kit. MOQ 1 box.",
+    moq: "1 box (10 vials)",
+    email: "sharon@sigmatech-peptide.com",
+    whatsapp: "+852 95178236",
+    telegram: "+852 95178236",
+    wechat: "",
+    certs: "Imported equipment + full-process quality control, Third-party testing, Test Report page on site",
+    purity: "99.63%",
+    test_count: 1,
+    shipping_notes: "Lead time within 3 business days. Shipping time about 8-10 business days. Resend free for shipping problems. Full refund for quality problems. Support TT/BTC/USDT full refund.",
+    payment: "BTC, TT, USDT, USDC, PAYPAL, ETH",
+    batch_group: "",
+    other_products: "Tirzepatide (5-60mg), MOTS-C (10-40mg), NAD+ 500mg, BPC-157/TB-500/KPV/GHK-Cu blends, Tesamorelin, GHK-Cu, Glow blend, peptide catalog",
+    notes: "Established 2017. Claims strategic partners in 50+ countries. Bilingual EN/CH site. Professional website with full product categories. Clear refund policy stated. Sale manager Sharon King.",
+    outreach_status: "contacted",
+    outreach_detail: "Webform submitted successfully: server returned “success”.",
+    source_urls: ["https://sigmatech-peptide.com", "https://sigmatech-peptide.com/ProDetail.aspx?ProID=130", "https://sigmatech-peptide.com/Contact.aspx?ClassID=23", "https://sigmatech-peptide.com/About.aspx?ClassID=2"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "taikangbio.com",
+    company: "Taikangbio Technology Co., Limited",
+    location: "Unit A, 12/F, 99 Queen's Road Central, Central, Hong Kong (postal code 999077)",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "",
+    moq: "",
+    email: "taishijie@taishijie.com",
+    whatsapp: "+44 7394 750415, +44 7394737723, +447935851951",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik (tests #147613 Retatrutide, #147618 Tirzepatide, #147738 GHKCu)",
+    purity: "99.82%",
+    test_count: 1,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "99.818%/22.39mg batch: taishijie.com, zjpeptix.com; Batch cluster: 147610,147611,147613",
+    other_products: "AOD9604, BBG70, Cagrilintide, GHK-CU, HCG, HGH-191AA, MOTS-c, MT-1",
+    notes: "Site completely unreachable. Both https and http failed with certificate errors and connection refused. Web search found no salvageable information about this domain as a peptide supplier. Domain name suggests a Chinese bio company but unverifiable.; Site currently unreachable (socket close on direct access). All data from Wayback Machine snapshot dated May 2026. Company address is Hong Kong. Uses UK (+44) WhatsApp numbers — unusual for HK-based firm. Email domain @taishijie.com differs from @taikangbio.com, suggesting possible parent/trading entity mismatch. Retatrutide listed on homepage with Janoshik test report. No pricing or shipping info in cached pages. Retatrutide product page returned 404 on Wayback.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://taikangbio.com", "https://web.archive.org/web/20260520063957/https://taikangbio.com/product/retatrutide/", "https://web.archive.org/web/20260520063957/https://taikangbio.com/", "http://taikangbio.com"],
+    source: "janoshik",
+    reachable: false
+  },
+  {
+    domain: "taishijie.com",
+    company: "Peptide World (brand) / Manufacturer (claimed)",
+    location: "China (claims 375+ employees in China, new plant 35,354 m², 6 production lines, 10 years in peptide industry). No specific street address on site.",
+    location_evidence: "Website states: China",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "RFQ only. 'Contact us, we will quote you the best price.' Pricing provided via direct contact. Retatrutide shown in Certifications section with Janoshik test report link.",
+    moq: "1 box",
+    email: "taishijie@taishijie.com",
+    whatsapp: "+44 7935 851951; +44 7599 700465; +44 7394 737723",
+    telegram: "",
+    wechat: "",
+    certs: "Janoshik laboratory testing (links to specific Janoshik test reports e.g. 147611-Retatrutide), 99%+ purity guarantee, Third-party testing support, NASC USA certification (image shown)",
+    purity: "99.82%",
+    test_count: 1,
+    shipping_notes: "Small orders: 5-7 days by DHL/UPS/TNT/FEDEX/EMS. Mass orders: 5-15 days by Air. Free reship if customs detains. Lead time for mass production: 2-3 days.",
+    payment: "PayPal, bank transfer, Western Union, BTC, USDT",
+    batch_group: "99.818%/22.39mg batch: taikangbio.com, zjpeptix.com; Batch cluster: 147610,147611,147613",
+    other_products: "Tirzepatide, BPC-157, TB-500, GHK-Cu, Tesamorelin, peptide blends, and many more",
+    notes: "WordPress/Elementor site branded 'Peptide World'. UK (+44) and HK (+852) contact numbers. Claims manufacturer with 10 years experience and large production capacity. Some lorem ipsum placeholder content suggests site may be relatively new or incomplete. Real functional Janoshik test report links. Also lists Facebook contact.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://taishijie.com", "https://janoshik.com/tests/147611-Retatrutide_20mg_E7SLLIB2H47B"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "vicopeptide.com",
+    company: "Veike Technology Co., Ltd",
+    location: "No. 285 Qianhai Road Nanshan District, Shenzhen, Guangzhou, China",
+    location_evidence: "Website states: China (Shenzhen/Guangzhou)",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "RFQ — contact for quote; no public pricing listed",
+    moq: "1 kit",
+    email: "postmaster@vicopeptide.com",
+    whatsapp: "+85294110243 (Alina), +85256270611 (Hailey)",
+    telegram: "",
+    wechat: "",
+    certs: "≥99% purity, COA, Janoshik, HPLC, Mass Spectrometry",
+    purity: "99.82%",
+    test_count: 1,
+    shipping_notes: "International carriers listed: EMS/USPS/UPS/FEDEX/DHL/NLPOST/GDEX/Royal Mail/Yodel/Canada Post/KANGLI/DPD RPX. Domestic China shipping implicit (Shenzhen-based).",
+    payment: "Bitcoin, Alipay, Paypal, T/T, WU",
+    batch_group: "99.818%/20mg batch: hkuppeptide.com; Batch cluster: 147614,147615",
+    other_products: "Mazdutide, GHK-CU, Glow 70mg, Klow 80mg, MOTS-c, Tirzepatide, Cagrilintide, Semaglutide, Semax, MT-2, Ipamorelin, BPC-157, TB-500",
+    notes: "; Company claims established 2006, 4600+ customers, 35+ IP rights. Office in Nanshan District, Shenzhen. Retatrutide specs: 2mg/5mg/10mg/20mg vials, 10 vials/box, ≥99% purity. Janoshik test report #147613 linked. Product category: Weight loss & Metabolic.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.vicopeptide.com/", "https://www.vicopeptide.com/?contact/", "https://www.vicopeptide.com/?lm1/210.html"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "zjpeptix.com",
+    company: "ZJpeptix / Zhenji Peptide",
+    location: "Manufacturing in China (factory photos show Chinese signage); shipping consolidated in Hong Kong",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "RFQ — 'Price: Inquire'; discount for larger quantities per FAQ",
+    moq: "1 box",
+    email: "zjpeptix@zjpeptix.com",
+    whatsapp: "+44 7935 878930, +44 7999656503",
+    telegram: "yes (icon linked in footer)",
+    wechat: "",
+    certs: "≥98-99% purity, COA, Janoshik (tests #147610, #147616, #147736), GMP (ISO 7/Class 10,000 workshop), HPLC",
+    purity: "99.82%",
+    test_count: 1,
+    shipping_notes: "Express parcels consolidated in Hong Kong then shipped worldwide via DHL/FedEx/EMS. Standard peptides ship within 3 days, delivery 7-25 days. Free re-ship if customs detention. Ships to 35+ countries.",
+    payment: "Bitcoin, USDT, USDC, wire transfer",
+    batch_group: "99.818%/22.39mg batch: taikangbio.com, taishijie.com; Batch cluster: 147610,147611,147613",
+    other_products: "Wolverine (TB500+BPC157), KLOW, BPC157, TB500, GHK-CU, Cagrilintide, Semaglutide, Tirzepatide, MT1",
+    notes: "; Claims 17 years industry experience. Self-identifies as manufacturer ('Manufactuer'). GMP-compliant workshop with closed purification design, ISO 7 (Class 10,000). Retatrutide specs: 5mg/10mg/15mg/20mg/30mg/50mg, >99% purity, supports custom specs. Direct Janoshik test reports linked for Retatrutide, Tirzepatide, GHK-CU. Footer says 9+ years. Multiple factory photos displayed.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://zjpeptix.com/product/retatrutide/", "https://zjpeptix.com/about/", "https://zjpeptix.com/"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "zztai-tech.com",
+    company: "Henan ZHITAI Technology Co., Ltd (trading as ZZTAI)",
+    location: "Henan, China (company registration); Hong Kong SAR (Shopify store location)",
+    location_evidence: "",
+    china_based: true,
+    ships_to_china: true,
+    prices: "5mg x 10 vials $110.00 USD; 10mg x 10 vials $110.00 USD; 15mg x 10 vials $110.00 USD; 20mg x 10 vials $110.00 USD; 30mg x 10 vials $110.00 USD",
+    price_notes: "All variants same base price $110/kit (10 vials). All variants marked 'Variant sold out or unavailable' on product page. Free shipping to China, USA, Canada, Mexico, UK, France, Germany; $20-25 for rest of world.",
+    moq: "1 kit (10 vials)",
+    email: "zztai.tech@gmail.com",
+    whatsapp: "+852 9851 8275 (person in charge); multiple sales reps: +852 5508 4309 (Lina), +852 5725 1470 (Miller), +852 9137 5147 (Angela), +852 9161 5653 (June), +852 6112 8075 (Ming), +852 5725 8785 (Cyndin), +852 9178 4557 (Monica), +852 5238 7397 (Lena), +852 5284 1956 (Molly), +852 5286 4301 (Lytha), +852 9724 5271 (Kathy)",
+    telegram: "@Ming_zztai, @linapeptide, @MillerZZTAI, @PeptideAngela, @Zztai_June, @Cyndin_peptide, @MonicaZZTAI, @Lena_zztai, @PeptideMolly, @PeptideLytha, @peptidekathy",
+    wechat: "",
+    certs: "99%+ purity, Lyophilized powder, COA implied",
+    purity: "99.86%",
+    test_count: 1,
+    shipping_notes: "Free shipping to China. Ships from China (warehouse) or Atlanta USA for US orders. Processing 0-2 days. USA: 3-6 days via UPS/USPS/FedEx. Canada: 3-6 days via DHL/FedEx. Europe: 5-10 days via Geswl. Rest of world: 7-10 days via DHL/FedEx. Package delivery: sign recommended.",
+    payment: "Shopify checkout (credit cards, PayPal)",
+    batch_group: "",
+    other_products: "Tirzepatide, Semaglutide, Cagrilintide, LipoC, GHK-CU, Semax, Ipamorelin, MT-2, MOTS-c, BPC 157",
+    notes: "; Shopify storefront (myshopify.com backend). 'For production and scientific research use only.' Claims 99%+ purity. Delivery time 5-8 days. Color: White, lyophilized powder. Multiple HK-numbered sales reps suggesting Hong Kong trading operation. Facebook page linked. All retatrutide variants show as sold out.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://zztai-tech.com/pages/shipping-delivery", "https://zztai-tech.com/", "https://zztai-tech.com/products/retatrutide", "https://zztai-tech.com/pages/about-us"],
+    source: "janoshik",
+    reachable: true
+  },
+  {
+    domain: "sdhanjiang.com",
+    company: "Shandong Hanjiang Chemical Co., Ltd.",
+    location: "Zibo City, Shandong Province, China",
+    location_evidence: "Company own website (sdhanjiang.com) lists address: 52A2 Qilu Industrial Park, Zibo City, Shandong. ICP beian filing confirms Chinese-registered entity.",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "No public price (RFQ required). FOB price listed as $0.0-0.0 on LookChem.",
+    moq: "1 Kilogram",
+    email: "hanson@sdhanjiang.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "Enterprise Authentication (LookChem)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Products exported worldwide and domestically. Ports: Qingdao, Shanghai, Guangzhou, Tianjin. Delivery within one week of order.",
+    payment: "T/T, PayPal, Alibaba Escrow",
+    batch_group: "",
+    other_products: "",
+    notes: "[finished vials + bulk] Raw peptide powder supplier. Claims 99% purity. Product form: bulk white powder (peptide raw material for R&D, not finished vials). Established 2018, 3000+ products. General chemical/R&D company, not a dedicated peptide manufacturer.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on contact form.",
+    source_urls: ["https://sdhanjiang.lookchem.com/products/CasNo-2381089-83-2-Retatrutide-32877367.html", "http://www.sdhanjiang.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "jxlbiotech.com",
+    company: "Harbin Jixianglong Biotech Co., Ltd.",
+    location: "Harbin, Heilongjiang Province, China",
+    location_evidence: "Own website shows: North of Baoan Road, East of Changqing Street, Limin Development Zone, Harbin, China. LookChem confirms Heilongjiang province.",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "No public price (RFQ required).",
+    moq: "1 Gram",
+    email: "peptides@hrbjxl.com",
+    whatsapp: "+86 13613621816",
+    telegram: "",
+    wechat: "+86 13613621816",
+    certs: "GMP (peptide workshop), ISO9001:2015, Enterprise Authentication (LookChem)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "GMP peptide manufacturer with domestic China shipping. Exports worldwide.",
+    payment: "T/T",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Peptide API manufacturer. Company website focuses entirely on peptide APIs (Tirzepatide, Atosiban, Somatostatin, etc.). Retatrutide listing: GMP Manufacturer, ISO9001:2015 audited, NDC Number Available, USDMF Filing. Product form: raw peptide API/research powder. GMP-certified peptide workshop. 10+ API production approvals, 16 invention patents. Strongest peptide-specific candidate.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on contact form.",
+    source_urls: ["https://hrbjxl.lookchem.com/products/CasNo-2381089-83-2-Retatrutide--34138442.html", "https://www.jxlbiotech.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "huarongpharm.com",
+    company: "Hangzhou Huarong Pharm Co., Ltd.",
+    location: "Hangzhou, Zhejiang Province, China",
+    location_evidence: "Own website shows: Room1101, Hakim International Building, Gongshu District, Hangzhou, China. ICP beian filing.",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "No public price (RFQ required). FOB price listed as $0.0-0.0.",
+    moq: "1 Kilogram",
+    email: "sales@huarongpharm.com",
+    whatsapp: "+8613588754946",
+    telegram: "",
+    wechat: "AK1G18",
+    certs: "Enterprise Authentication (LookChem)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Also claims US & Canada warehouse for faster international delivery.",
+    payment: "T/T",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Trading company since 2009 (15+ years) focusing on APIs & intermediates, building blocks, reference compounds. Retatrutide listing claims 'Real manufacturer' with US/Canada warehouse. Product form: bulk raw peptide powder. 3000+ supplied products. More of a chemical distribution company than a peptide specialist.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on contact form.",
+    source_urls: ["https://Huarong01.lookchem.com/products/CasNo-2381089-83-2-GIPR-GLP-1R-GCGR-Retatrutide-2381089-83-2-Delivery-from-our-warehouse-at-USA-Canada---Real-manufacturer-31288939.html", "https://www.huarongpharm.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "h2opharm.com",
+    company: "Shandong Juntai Pharmaceutical Co., Ltd.",
+    location: "Jinan, Shandong Province, China",
+    location_evidence: "Own website shows: F4, Building 7, DIYA Innovation Park, No. 2566, Century Avenue Road, High tech Zone, Jinan, Shandong, China.",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "No public price (RFQ required). FOB price listed as $0.0-0.0.",
+    moq: "1 Kilogram",
+    email: "sales@h2opharm.com",
+    whatsapp: "+86 15098843573",
+    telegram: "",
+    wechat: "15098843573",
+    certs: "ISO, Enterprise Authentication (LookChem)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Manufacturer based in Jinan, Shandong. Domestic China shipping available.",
+    payment: "T/T",
+    batch_group: "",
+    other_products: "",
+    notes: "[custom synthesis/CDMO] Manufacturer (Business Type: Manufacturers on LookChem). Integrated R&D, manufacturing and sales of APIs, intermediates and cosmetic ingredients. Retatrutide API with 99.1% purity per COA (HPLC). Product form: raw peptide API powder. Also offers CDMO services with 1,500 sqm R&D center. Own site shows peptide building blocks (Fmoc-protected amino acids) not Retatrutide specifically.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on contact form.",
+    source_urls: ["https://JuntaiPharmaceutical.lookchem.com/products/CasNo-2381089-83-2-Retatrutide-37784390.html", "https://www.h2opharm.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "sxmqchem.com",
+    company: "Shaanxi Mingqi Chemical Co., Ltd",
+    location: "Xi'an, Shaanxi Province, China",
+    location_evidence: "LookChem contact page: Weiyang District, Xi'an, Shaanxi, China (Mainland). Verified 3 years on LookChem.",
+    china_based: true,
+    ships_to_china: true,
+    prices: "",
+    price_notes: "FOB Price listed as $0.0-0.0 (RFQ required).",
+    moq: "1 Gram",
+    email: "info@sxmqchem.com",
+    whatsapp: "+8618092428356",
+    telegram: "",
+    wechat: "",
+    certs: "Enterprise Authentication (LookChem)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "China-based company; domestic shipping available. Also has US warehouse with 4-day delivery.",
+    payment: "T/T",
+    batch_group: "",
+    other_products: "",
+    notes: "[finished vials + bulk] Chemical R&D/trading company. Pharmaceutical raw materials, intermediates, plant extracts. Retatrutide listing as lyophilized peptide powder 99% purity in finished vial sizes (5mg/10mg/15mg/30mg). Product form: both raw bulk powder AND pre-measured finished vials. US warehouse stock available. Claims 20 years industry experience.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://mingqichem.lookchem.com/products/CasNo-2381089-83-2-US-Warehouse-Retatrutide-Lyophilized-Peptide-Powder-99-Purity-5mg-10mg-15mg-30mg-Delivery-time-4days-37001540.html", "http://mingqichem.lookchem.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "superpharmagroup.com",
+    company: "Superpharma Group",
+    location: "Shenzhen, Guangdong, China",
+    location_evidence: "Site footer lists 'Shenzhen Office, China' alongside HK office; ICP filing registration; also lists +86 mainland mobile number",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only - no public pricing on website",
+    moq: "",
+    email: "sales@sinofuturepharma.com",
+    whatsapp: "+8619874373110",
+    telegram: "",
+    wechat: "",
+    certs: "GMP",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Has Shenzhen office but domestic shipping policy not explicitly stated; main phone is +852 (Hong Kong)",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] GMP-certified manufacturer of steroid and peptide APIs. Dedicated Retatrutide product page at /retatrutide.html with CAS 2381089-83-2, full description. Sells API raw materials for B2B pharmaceutical procurement. Also operates Hong Kong office.",
+    outreach_status: "contacted",
+    outreach_detail: "Inquiry submitted successfully through the public message form.",
+    source_urls: ["https://www.superpharmagroup.com/retatrutide.html", "https://www.superpharmagroup.com/message.html", "https://www.superpharmagroup.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "belugachem.com",
+    company: "Qingdao Beluga Import and Export Co., LTD",
+    location: "Qingdao, Shandong, China",
+    location_evidence: "Official site footer: 'Address: qingdao'; LookChem profile shows China (Mainland)",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only - FOB Price listed as $0.0-0.0 on directory",
+    moq: "1 Gram",
+    email: "qdbaijingchem@163.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Domestic shipping not explicitly stated; company is mainland-China based",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Import/export trading company specializing in chemical intermediates, steroids, pharmaceutical intermediates. Retatrutide listed on LookChem product page with min order 1g.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.belugachem.com", "https://baijingchem.lookchem.com"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "motifbiotech.com",
+    company: "Suzhou Motif Biotech Co., Ltd.",
+    location: "Suzhou High-Tech Zone (Huqiu District), Jiangsu, China",
+    location_evidence: "About page: 'Located in the Suzhou High-Tech Zone (Huqiu District)'; Founded 2021 in Suzhou New District; ICP filing",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only - peptide CRDMO custom synthesis service",
+    moq: "",
+    email: "",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "GMP (ICH Q7), NMPA compliance",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Peptide CRDMO offering custom synthesis and API manufacturing; domestic shipping capability inferred",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[custom synthesis/CDMO] Innovative peptide CRDMO with 800sqm GMP workshop, 4,300sqm facility, 100M+ RMB R&D investment, 30kg+ annual API capacity. Meta-keywords include 'Retaglutide Impurities'. Offers custom synthesis of complex peptides including Retatrutide class molecules. All products marked 'for scientific research only'.",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["https://www.motifbiotech.com", "https://motifbiotech.lookchem.com", "https://www.motifbiotech.com/about.html"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "handomchemicals.com",
+    company: "Dalian Handom Chemicals Co., Ltd.",
+    location: "R#702, No.21 Liuhe Road, Ganjingzi Dist, Dalian-116091, Liaoning, China",
+    location_evidence: "Full street address on Contact page, embedded Google Maps confirming Liuhe Road area, Dalian. About page states headquarters in northeast China and 30,000㎡ factory.",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only — no public prices. Payment methods disclosed in FAQ: T/T, L/C, Western Union, PayPal.",
+    moq: "Not specified (inquiry-based; FAQ mentions free samples for testing)",
+    email: "info@handomchemicals.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "SGS (third-party testing partner), Eurofins (third-party testing partner), 6 technical patents claimed, GMP-like production (partner factory)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Based in mainland China (Dalian). FAQ discusses international shipping but domestic shipping is not explicitly addressed. Free samples available for pre-order testing.",
+    payment: "T/T, L/C, Western Union, PayPal",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] 10+ year export experience. Supplier/trader with partner factories — not a self-owned manufacturer per FAQ. Retatrutide offered as bulk API (≥98% purity, COA downloadable) and lyophilized vials (≥99% purity, 5/10/15/20/30mg). Full specification table with purity, endotoxin, residual solvents. Sequence disclosed. 24-month shelf life.",
+    outreach_status: "no_form",
+    outreach_detail: "Public inquiry control is a non-automatable JavaScript popup; no accessible HTML form.",
+    source_urls: ["https://www.handomchemicals.com/retatrutide-product/", "https://www.handomchemicals.com/retatrutide-lyophilized-powder-product/", "https://www.handomchemicals.com/contact-us/", "https://www.handomchemicals.com/about-us/", "https://www.handomchemicals.com/faqs/"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "hlextract.com",
+    company: "Xi'an Huilin Bio-tech Co., Ltd.",
+    location: "High-tech Shangdu Mocha, Jinye Road, High-tech Zone, Xi'an City, Shaanxi Province, China",
+    location_evidence: "Full street address on every page footer, About Us, and Contact Us page. Company registration as Xi'an Huilin Bio-tech Co., Ltd.",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only — contact sales@huilinbio-tech.com or ella.zhang@huilinbio-tech.com for price.",
+    moq: "1g",
+    email: "sales@huilinbio-tech.com",
+    whatsapp: "+86 18992878573",
+    telegram: "",
+    wechat: "",
+    certs: "GMP-like production standards (claimed), COA provided with each batch, HPLC purity verification, Mass spectrometry confirmation, Endotoxin testing (<0.1 EU/mg)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Based in Xi'an, Shaanxi. Ships via standard logistics. 'Corporate enterprise customers only — not for individual private buyers' stated on product page.",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Specializes in herb extracts and biochemical research materials. Retatrutide listed at 99% purity (HPLC), lyophilized powder, CAS 2592008-21-0. Also sells Semaglutide. Research-grade only — explicitly not for human use. Company also has VR showroom.",
+    outreach_status: "contacted",
+    outreach_detail: "Inquiry submitted successfully: the form endpoint returned the documented success code 1.",
+    source_urls: ["https://www.hlextract.com/raw-materials-for-biochemical-research/retatrutide.html", "https://www.hlextract.com/contact-us", "https://www.hlextract.com/about-us"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "apeptides.com",
+    company: "Shanghai Chutai Biological Technology Co., Ltd. (上海楚肽生物科技有限公司)",
+    location: "上海市浦东新区康桥东路1369号仓欣产业园C栋二楼 (2F, Building C, Cangxin Industrial Park, 1369 Kangqiao East Road, Pudong New Area, Shanghai, China)",
+    location_evidence: "Full street address on Contact page (生产地址). Shanghai ICP registration (沪ICP备10016655号-2). Shanghai area code 021. Company name includes 上海.",
+    china_based: true,
+    ships_to_china: null,
+    prices: "1mg 95% — 请询价 (inquire); 5mg 95% — 请询价 (inquire); 10mg 95% — 请询价 (inquire)",
+    price_notes: "Listed in RMB but marked 'inquire' (请询价). HPLC and Mass spec provided with each batch.",
+    moq: "Not specified (capability stated as 毫克级[mg] to 公斤级[kg])",
+    email: "sales@apeptide.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "QR code on site",
+    certs: "HPLC, Mass spectrometry (MS), Custom NMR, amino acid analysis, elemental analysis available upon request",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Based in Shanghai, Pudong. Shipping methods not publicly listed.",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Peptide synthesis specialist. Retatrutide TFA product page with full sequence and PEG2000 modification disclosed. Also offers custom peptide synthesis, ELISA kits, fluorescent labeling. Supports mg to kg scale. QQ and WeChat customer service.",
+    outreach_status: "no_form",
+    outreach_detail: "No public webform found; direct email, WeChat QR, and QQ only.",
+    source_urls: ["https://www.apeptides.com/h-nd-4448.html", "https://www.apeptides.com/h-col-106.html", "https://www.apeptides.com/h-col-104.html"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "peptide-china.com",
+    company: "浙江湃肽生物股份有限公司 (Zhejiang Peptide Biology Co., Ltd.)",
+    location: "杭州市江干区下沙街道福城路291号（生物医药港小镇）, Zhejiang, China; GMP factory: 浙江省嵊州市三界高新产业园区横一支路8号",
+    location_evidence: "Official site footer shows full address, ICP registration 浙ICP备2022001348号-1, phone 0575-83835818 (Shaoxing/Zhejiang area code)",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public pricing; RFQ required (custom synthesis/API manufacturer)",
+    moq: "",
+    email: "sales@peptide-china.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "FDA, HALAL, EcoVadis, ISO, GMP, 国家级专精特新重点小巨人企业",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "GMP manufacturer with FDA certification, global shipping capability; domestic China shipping inferred from mainland location",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[custom synthesis/CDMO] Major peptide API manufacturer. Retatrutide (listed as 瑞他鲁肽 CAS 2381089-83-2) appears under '重点推荐产品' (key recommended products) in the API catalog. Also offers CDMO/CMO/CRO services. 60+ peptide APIs. 8,000 kg/yr peptide powder capacity. Uses MetInfo CMS.",
+    outreach_status: "manual_captcha",
+    outreach_detail: "Manual image CAPTCHA required on /feedback/ form.",
+    source_urls: ["https://www.peptide-china.com/", "https://www.peptide-china.com/product2/show.php?id=152", "https://www.peptide-china.com/contact/show.php?id=98"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "biochempartner.com",
+    company: "BioChemPartner",
+    location: "China (exact city not confirmed on site)",
+    location_evidence: "Phone 0086-17754423994 (+86 mainland China country code), Chinese language toggle on site, ICP-unverified; no explicit street address on public pages",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "No public pricing; RFQ required. Site states 'Contact us for technical support' and 'Competitive discounts on bulk quantities'",
+    moq: "",
+    email: "candy@biochempartner.com",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "Vendor claim: 'BioChemPartner is able to provide a comprehensive QC data package' and 'Competitive discounts on bulk quantities'. Domestic shipping inferred from +86 phone only, not explicitly stated",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Research chemicals, APIs, and intermediates supplier. Retatrutide listed as Cat# BCP49767 CAS 2381089-83-2 on homepage product grid. Dedicated product page (https://www.biochempartner.com/BCP49767/retatrutide.html) returns 404. Website appears somewhat dated with placeholder text in nav. Products for research use only disclaimer present.",
+    outreach_status: "no_form",
+    outreach_detail: "No public webform found; direct email/phone only.",
+    source_urls: ["https://www.biochempartner.com/", "https://www.biochempartner.com/about/contact-us"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "takele.cn",
+    company: "Sichuan Taikelai Biotechnology Co., Ltd.",
+    location: "Room 1635, Building 1-1, No.35 Ximianqiao Street, Wuhou District, Chengdu, Sichuan, China",
+    location_evidence: "Official website footer lists full Chengdu address. ICP registration 蜀ICP备2023003839号-1, registered in Sichuan province.",
+    china_based: true,
+    ships_to_china: null,
+    prices: "",
+    price_notes: "RFQ only; B2B listing on chem17.com for Retatrutide without public pricing",
+    moq: "",
+    email: "",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    certs: "High-tech enterprise (高新技术企业)",
+    purity: "",
+    test_count: 0,
+    shipping_notes: "",
+    payment: "",
+    batch_group: "",
+    other_products: "",
+    notes: "[raw powder/API] Peptide manufacturer specializing in drug/cosmetic/custom peptides. Offers solid-phase and liquid-phase synthesis, mg to kg scale, purity up to 99%. Retatrutide listed on chem17.com B2B platform. Main catalog includes Semaglutide, Tirzepatide, Liraglutide confirming GLP-1 capability. Office address in Chengdu (not factory).",
+    outreach_status: "",
+    outreach_detail: "",
+    source_urls: ["http://www.takele.cn", "http://www.takele.cn/product_1052472.html", "https://www.chem17.com/st414195/product_38896799.html"],
+    source: "discovery",
+    reachable: true
+  },
+  {
+    domain: "thinhealpeptide.com",
+    company: "Hangzhou ThinHeal Pharma-Tech Co., Ltd.",
+    location: "Phase 5, Heda Medicine Valley, Chengrui Street Intersection, Xingfu North Road, Qiantang District, Hangzhou, Zhejiang, China",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "info@thinheal.com",
+    phone: "+86 0571-86758863",
+    whatsapp: "+86 18858158962 (US/EU), +86 19956369799 (RU/CIS/EU), +86 13628476528 (Asia), +86 13357150101 (ME/EA)",
+    telegram: "",
+    wechat: "",
+    contact_form: "https://www.thinhealpeptide.com/contact-us/",
+    prices: "RFQ",
+    price_notes: "Inquiry-based; MOQ 1g",
+    shipping_notes: "Global shipping; multiple regional contact points",
+    ships_to_china: true,
+    moq: "1g",
+    payment: "Inquiry-based",
+    dmf: "FDA DMF #42912",
+    certs: "FDA DMF #42912, COA, HPLC",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "Semaglutide, Tirzepatide, Liraglutide, Dulaglutide, Eptifibatide, Linaclotide, Cosmetic Peptides",
+    notes: "Genuine manufacturer confirmed: FDA DMF #42912 (Retatrutide, Jan 2026), stated tons-scale peptide capacity, Shaoxing manufacturing site, full GLP-1 analogue catalog, multi-language pro website. MOQ 1g accommodates smaller buyers.",
+    outreach_status: "new",
+    outreach_detail: "Contact form available. Also email: info@thinheal.com",
+    source_urls: ["https://www.thinhealpeptide.com/", "https://www.thinhealpeptide.com/retatrutide-cas-no-2381089-83-2-product/", "https://www.thinhealpeptide.com/glp-1-analogues/"],
+    source: "chinese_language_search_2026-07-23"
+  },
+  {
+    domain: "minstargroup.com",
+    company: "Shanghai Minstar Chemical Co., Ltd.",
+    location: "Building 8, No.1098, Chuansha Road, Pudong, Shanghai, China",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "minstar@minstargroup.com",
+    phone: "+86-21-56469616",
+    whatsapp: "+86 15872774734 (Anna Jan)",
+    telegram: "",
+    wechat: "+86 15872774734",
+    contact_form: "https://www.minstargroup.com/contact-us/",
+    prices: "$190 for 20×60mg vials delivered Suzhou",
+    price_notes: "$9.50/vial. MOQ 2 boxes. Quoted by Anna Jan.",
+    shipping_notes: "Door-to-door Suzhou included. Can ship domestically.",
+    ships_to_china: true,
+    moq: "2 boxes (20 vials)",
+    payment: "T/T in advance",
+    dmf: "",
+    certs: "US FDA Registration No. 10249312842",
+    purity: "99.18% (HPLC, batch P260514-L013)",
+    test_count: 1,
+    batch_group: "",
+    other_products: "Fine chemicals, APIs, intermediates, plant extracts, agrochemicals",
+    notes: "Chemical trading company, not manufacturer. Provided batch-specific COA (99.18%), HPLC, and MS for batch P260514-L013. Individual vial COA available. Lead time 2-4 days Suzhou.",
+    outreach_status: "replied",
+    outreach_detail: "Anna sent batch COA, HPLC, and MS docs. Purity 99.18%. Individual vial COA available. Lead time 2-4 days Suzhou.",
+  },
+  {
+    domain: "czyys.com",
+    company: "Changzhou Hangyu Pharmaceutical Technology Development / Xinying Pharma",
+    location: "Yanling Middle Road 300, Changzhou, Jiangsu, China",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "sales@czyys.com",
+    phone: "0086-13961196887 (Steven Zhang)",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    contact_form: "http://www.czyys.com/contact-us/",
+    prices: "$88/box (60mg×10 vials) FOB Suzhou",
+    price_notes: "$8.80/vial FOB. 'for 1kg' MOQ ambiguous. Steven Zhang, Sales Mgr.",
+    shipping_notes: "FOB Suzhou. Changzhou-based, domestic shipping available.",
+    ships_to_china: true,
+    moq: "Ambiguous — likely 1kg (1667 boxes) at quoted rate",
+    payment: "T/T in advance",
+    dmf: "",
+    certs: "Sterile workshop (100,000 grade), in-house HPLC/GC/UV",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "Tacrolimus, Rapamycin, Leflunomide, API intermediates, extracts, amino acids",
+    notes: "Legitimate manufacturer estab. 1984. Small-molecule API focus (immunosuppressants). Retatrutide likely custom synthesis or brokered. Not peptide-specialized.",
+    outreach_status: "new",
+    outreach_detail: "Steven Zhang replied via email with quote. Asked for COA/MOQ clarification.",
+    source_urls: ["http://www.czyys.com/"],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "sdwinnerbio.com",
+    company: "Shandong Winner Biotech Co., Ltd. (山东万纳生物科技有限公司)",
+    location: "Jinan Free Trade Zone, Shandong, China",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "sales@sdwinnerbio.com",
+    phone: "15315319889 (Manager Wang)",
+    whatsapp: "+86 18560098217 (Alex Wang)",
+    telegram: "",
+    wechat: "+86 18560098217",
+    contact_form: "http://www.sdwinnerbio.com/contact-us/",
+    prices: "RMB 1000/g bulk powder",
+    price_notes: "≈$140/g. MOQ 1g. Bulk powder only, not vials. Alex Wang, Sales Mgr.",
+    shipping_notes: "Can ship domestically within China.",
+    ships_to_china: true,
+    moq: "1g",
+    payment: "Unknown",
+    dmf: "",
+    certs: "ISO9001:2015, National High-Tech Enterprise (2023), 3A Credit (2022)",
+    purity: "≥99% (HPLC)",
+    test_count: 0,
+    batch_group: "",
+    other_products: "Pharmaceutical intermediates, fine chemicals, custom synthesis",
+    notes: "Real manufacturer estab. 2015, high-tech enterprise. R&D in Jinan/Shanghai, partner factories in Shandong. Core business is intermediates, not peptides. Retatrutide custom synthesis.",
+    outreach_status: "new",
+    outreach_detail: "Alex Wang replied via email with quote. Bulk powder only, not vial format.",
+    source_urls: ["http://www.sdwinnerbio.com/"],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "youmeibio.com",
+    company: "YouMei Bio-Chemical Co., Ltd.",
+    location: "Unit 2214, 22/F, Tower A, Miramar Plaza, 132 Nathan Road, Hong Kong",
+    china: false,
+    china_based: false,
+    reachable: true,
+    email: "ymchemmaterial@gmail.com",
+    phone: "",
+    whatsapp: "+61 411 665 941 (Mr. Lucas)",
+    telegram: "",
+    wechat: "",
+    contact_form: "",
+    prices: "",
+    price_notes: "Mr. Lucas reached out proactively. Wants WhatsApp discussion. No price given.",
+    shipping_notes: "Hong Kong-based. Domestic China shipping unclear.",
+    ships_to_china: false,
+    moq: "",
+    payment: "",
+    dmf: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "",
+    notes: "Hong Kong company. LookChem profile. Lucas asked about 10 vials of 60mg Retatrutide to Suzhou.",
+    outreach_status: "new",
+    outreach_detail: "Mr. Lucas emailed asking about the order, wants to move to WhatsApp",
+    source_urls: ["https://youmeibio.lookchem.com/"],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "metrixllc.com",
+    company: "Metrix LLC",
+    location: "China (Mainland)",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "metrix1097@gmail.com",
+    phone: "86-181-65535321 (Luna)",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    contact_form: "",
+    prices: "$218/box (60mg×10 vials)",
+    price_notes: "$21.80/vial. Quoted by Luna via LookChem. Asked how many boxes needed.",
+    shipping_notes: "Not specified",
+    ships_to_china: true,
+    moq: "",
+    payment: "",
+    dmf: "",
+    certs: "",
+    purity: "99.02%",
+    test_count: 0,
+    batch_group: "",
+    other_products: "",
+    notes: "China-based company on LookChem. Gmail contact. Higher pricing than other vial offers.",
+    outreach_status: "new",
+    outreach_detail: "Luna replied via LookChem. Quoted $218/box.",
+    source_urls: [],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "ecobiowellness.com",
+    company: "Hong Kong Eco Industrial Limited",
+    location: "Hong Kong (Mainland China according to LookChem)",
+    china: false,
+    china_based: false,
+    reachable: true,
+    email: "info@ecobiowellness.com",
+    phone: "86-183-92383977 (Cecilia)",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    contact_form: "",
+    prices: "",
+    price_notes: "Juliet replied via LookChem. No quote given — confirmed export only.",
+    shipping_notes: "Export only. Does NOT ship domestically within China.",
+    ships_to_china: false,
+    moq: "",
+    payment: "",
+    dmf: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "",
+    notes: "Hong Kong company. LookChem inquiry. Non-starter for Suzhou buyer — export only.",
+    outreach_status: "dead",
+    outreach_detail: "Juliet confirmed no domestic China shipping. Export only.",
+    source_urls: [],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "liguan88.com",
+    company: "Shanghai Huahaige Plastic Co., Ltd.",
+    location: "China (Mainland)",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "sales08@liguan88.com",
+    phone: "+86 19331937517 (Cui)",
+    whatsapp: "+86 15028138352 (Cui)",
+    telegram: "",
+    wechat: "",
+    contact_form: "",
+    prices: "",
+    price_notes: "No quote. Cui wants WhatsApp.",
+    shipping_notes: "Not specified",
+    ships_to_china: true,
+    moq: "",
+    payment: "",
+    dmf: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "Plastic",
+    notes: "Plastic company offering Retatrutide — clearly a broker/opportunist. Red flag.",
+    outreach_status: "new",
+    outreach_detail: "Cui replied via LookChem, wants WhatsApp.",
+    source_urls: [],
+    source: "inbound_inquiry_2026-07-23"
+  },
+  {
+    domain: "apiscn.com",
+    company: "Hangzhou GlobalEquipX Information Technology Co., Ltd.",
+    location: "Hangzhou, Zhejiang, China",
+    china: true,
+    china_based: true,
+    reachable: true,
+    email: "api@apiscn.com",
+    phone: "86-186-24089189 (Zhang Jing)",
+    whatsapp: "",
+    telegram: "",
+    wechat: "",
+    contact_form: "",
+    prices: "",
+    price_notes: "Zhang Jing confirmed API (bulk) only, no vials.",
+    shipping_notes: "Not specified",
+    ships_to_china: true,
+    moq: "",
+    payment: "",
+    dmf: "",
+    certs: "",
+    purity: "",
+    test_count: 0,
+    batch_group: "",
+    other_products: "Pharmaceutical APIs",
+    notes: "Info tech company offering APIs. Confirmed no vial format. Non-starter.",
+    outreach_status: "dead",
+    outreach_detail: "Zhang Jing replied — API only, no vials.",
+    source_urls: [],
+    source: "inbound_inquiry_2026-07-23"
+  }
+];
+
+const STATUSES = ['new','contacted','replied','ordered','dead'];
+const STATUS_LABELS = {new:'🆕 New',contacted:'📩 Contacted',replied:'💬 Replied',ordered:'📦 Ordered',dead:'⛔ Dead'};
+
+let notesData = {};  // {domain: {status, notes, updated}}
+
+function loadNotes() {
+  try {
+    const raw = localStorage.getItem('reta_notes');
+    if (raw) notesData = JSON.parse(raw);
+  } catch(e) {}
+}
+function saveNotes() {
+  localStorage.setItem('reta_notes', JSON.stringify(notesData));
+  const now = new Date().toLocaleString();
+  localStorage.setItem('reta_notes_updated', now);
+  document.getElementById('lastSaved').textContent = 'Last saved: ' + now;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  const search = document.getElementById('search').value.toLowerCase();
+  const chinaOnly = document.getElementById('chinaOnly').checked;
+  const shipChina = document.getElementById('shipChinaOnly').checked;
+  const statusF = document.getElementById('statusFilter').value;
+
+  let filtered = SUPPLIERS.filter(s => {
+    if (chinaOnly && !s.china_based) return false;
+    if (shipChina && (notesData[s.domain]?.noChinaShipping || !s.ships_to_china)) return false;
+    if (statusF && (notesData[s.domain]?.status || 'new') !== statusF) return false;
+    if (search) {
+      const haystack = (s.domain + ' ' + s.company + ' ' + s.location + ' ' + s.notes + ' ' + s.prices + ' ' + s.email + ' ' + s.whatsapp + ' ' + s.telegram).toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('rowCount').textContent = `${filtered.length} / ${SUPPLIERS.length} suppliers`;
+  tbody.innerHTML = '';
+
+  // Update stats
+  const totalCn = SUPPLIERS.filter(s => s.china_based).length;
+  const totalShip = SUPPLIERS.filter(s => s.ships_to_china).length;
+  const withPrice = SUPPLIERS.filter(s => s.prices && s.prices !== '—' && s.prices !== 'RFQ' && s.prices !== '').length;
+  document.getElementById('stats-bar').innerHTML = `
+    <span class="stat">📋 ${SUPPLIERS.length} suppliers</span>
+    <span class="stat cn">🇨🇳 ${totalCn} China-based</span>
+    <span class="stat">🚢 ${totalShip} ship to China</span>
+    <span class="stat">💰 ${withPrice} has prices</span>
+  `;
+
+  filtered.forEach(s => {
+    const entry = notesData[s.domain] || {};
+    const status = entry.status || (s.outreach_status === 'contacted' ? 'contacted' : 'new');
+    const ntxt = entry.notes || '';
+    const noChinaShipping = entry.noChinaShipping === true;
+
+    const cnClass = s.china_based ? 'cn' : 'non-cn';
+
+    // Location + China badge
+    let locHtml = s.location ? escapeHtml(s.location) : '—';
+    if (s.china_based) {
+      const conf = s.china_confirmed ? 'confirmed' : 'likely';
+      locHtml = `<span class="badge badge-cn">CN ${conf}</span> ` + locHtml;
+    } else if (s.location) {
+      locHtml = `<span class="badge badge-not-cn">Non-CN</span> ` + locHtml;
+    }
+
+    // Ships to China
+    let shipHtml = '—';
+    if (s.ships_to_china) shipHtml = '<span class="badge badge-ship">✅ Yes</span>';
+    else if (s.ships_to_china === false) shipHtml = '<span class="badge badge-not-cn">❌ No</span>';
+    else shipHtml = '❓';
+
+    // Batch group indicator
+    let domainHtml = `<a class="domain-link" href="https://${s.domain}" target="_blank" rel="noopener">${s.domain}</a>`;
+    if (s.batch_group) {
+      domainHtml += ` <span class="batch-badge" title="Shared Janoshik test batch (same upstream): ${s.batch_group}">🔄</span>`;
+    }
+
+    // Certs
+    const certHtml = s.certs && s.certs !== '—' ? escapeHtml(s.certs) : '—';
+
+    // Price
+    let priceHtml = '—';
+    if (s.prices) {
+      priceHtml = `<b>${escapeHtml(s.prices)}</b>`;
+    } else if (s.price_notes) {
+      priceHtml = `<span class="badge badge-rfq">RFQ</span>`;
+    }
+    if (s.price_notes) {
+      priceHtml += `<div>${escapeHtml(s.price_notes)}</div>`;
+    }
+
+    // Contact
+    let contactParts = [];
+    if (s.email) contactParts.push(s.email);
+    if (s.whatsapp) contactParts.push(s.whatsapp);
+    if (s.wechat) contactParts.push('WeChat: ' + s.wechat);
+    if (s.telegram) contactParts.push(s.telegram);
+    const contactHtml = contactParts.length ? escapeHtml(contactParts.join(' | ')) : '—';
+
+    // Source badge (Janoshik-tested vs discovery)
+    if (s.source === 'discovery') {
+      domainHtml += ` <span class="badge badge-ship" title="Newly discovered China source — not in Janoshik registry">🆕</span>`;
+    }
+
+    // Details: show all research data without truncation.
+    const detailBlocks = [];
+    if (s.notes) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Research:</span> ${escapeHtml(s.notes)}</div>`);
+    if (s.outreach_status === 'contacted') {
+      domainHtml += ` <span class="badge badge-contacted" title="${escapeHtml(s.outreach_detail)}">📨 Sent</span>`;
+    } else if (s.outreach_status === 'manual_captcha') {
+      domainHtml += ` <span class="badge badge-captcha" title="${escapeHtml(s.outreach_detail)}">🔐 CAPTCHA</span>`;
+    } else if (s.outreach_status === 'no_form') {
+      domainHtml += ` <span class="badge badge-no-form" title="${escapeHtml(s.outreach_detail)}">No form</span>`;
+    }
+    if (s.shipping_notes) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Shipping:</span> ${escapeHtml(s.shipping_notes)}</div>`);
+    if (s.outreach_detail) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Outreach:</span> ${escapeHtml(s.outreach_detail)}</div>`);
+    if (s.payment) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Payment:</span> ${escapeHtml(s.payment)}</div>`);
+    if (s.other_products) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Other products:</span> ${escapeHtml(s.other_products)}</div>`);
+    if (s.location_evidence) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Location evidence:</span> ${escapeHtml(s.location_evidence)}</div>`);
+    if (s.source_urls?.length) {
+      detailBlocks.push(`<div class="detail-block"><span class="detail-label">Sources:</span>${s.source_urls.map(url => `<a class="source-link" href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`).join('')}</div>`);
+    }
+    const detailHtml = detailBlocks.length ? detailBlocks.join('') : '—';
+
+    // Purity
+    let purityHtml = '—';
+    if (s.purity) {
+      purityHtml = `<b>${escapeHtml(s.purity)}</b>`;
+      if (s.test_count > 0) {
+        purityHtml += ` <span class="badge-test" title="${s.test_count} tests on Janoshik">🔬${s.test_count}</span>`;
+      }
+    } else if (s.test_count > 0) {
+      purityHtml = `<span class="badge-test" title="${s.test_count} tests on Janoshik">🔬${s.test_count} tests</span>`;
+    }
+
+    const tr = document.createElement('tr');
+    tr.className = noChinaShipping ? 'no-cn-ship' : cnClass;
+    tr.innerHTML = `
+      <td>${domainHtml}</td>
+      <td><b>${s.company ? escapeHtml(s.company) : '—'}</b></td>
+      <td>${locHtml}</td>
+      <td>${priceHtml}</td>
+      <td>${s.moq ? escapeHtml(s.moq) : '—'}</td>
+      <td class="notes-cell">${contactHtml}</td>
+      <td>${shipHtml}</td>
+      <td><label title="Mark after you confirm this supplier does not ship to mainland China"><input type="checkbox" ${noChinaShipping ? 'checked' : ''} onchange="updateNoChinaShipping('${s.domain}', this.checked)"> No</label></td>
+      <td class="notes-cell">${certHtml}</td>
+      <td>${purityHtml}</td>
+      <td><select class="status" data-domain="${s.domain}" onchange="updateStatus('${s.domain}', this.value)">${STATUSES.map(st => `<option value="${st}"${status===st?' selected':''}>${STATUS_LABELS[st]}</option>`).join('')}</select></td>
+      <td class="details-cell">${detailHtml}</td>
+      <td><textarea data-domain="${s.domain}" onchange="updateNotes('${s.domain}', this.value)" placeholder="Your notes...">${escapeHtml(ntxt)}</textarea></td>
+    `;
+    // Title on domain for quick notes peek
+    if (ntxt) tr.querySelector('td').title = ntxt;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Update functions
+function updateStatus(domain, val) {
+  if (!notesData[domain]) notesData[domain] = {};
+  notesData[domain].status = val;
+  notesData[domain].updated = new Date().toISOString();
+  saveNotes();
+  showToast(`Status updated to ${STATUS_LABELS[val] || val}`);
+}
+function updateNotes(domain, val) {
+  if (!notesData[domain]) notesData[domain] = {};
+  notesData[domain].notes = val;
+  notesData[domain].updated = new Date().toISOString();
+  saveNotes();
+}
+function updateNoChinaShipping(domain, checked) {
+  if (!notesData[domain]) notesData[domain] = {};
+  notesData[domain].noChinaShipping = checked;
+  notesData[domain].updated = new Date().toISOString();
+  saveNotes();
+  renderTable();
+  showToast(checked ? 'Marked: does not ship to China' : 'China-shipping warning cleared');
+}
+
+// Filters
+function applyFilters() { renderTable(); }
+document.getElementById('search').addEventListener('input', applyFilters);
+document.getElementById('chinaOnly').addEventListener('change', applyFilters);
+document.getElementById('shipChinaOnly').addEventListener('change', applyFilters);
+document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+function downloadDatabase() {
+  const download = document.createElement('a');
+  download.href = window.location.href;
+  download.download = 'retatrutide-suppliers.html';
+  document.body.appendChild(download);
+  download.click();
+  download.remove();
+  showToast('Download started. Export Notes separately to keep your contact history.');
+}
+
+// Export
+function saveExport() {
+  const blob = new Blob([JSON.stringify(notesData, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'reta-notes-export.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Notes exported!');
+}
+// Import
+function importNotes(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      // Merge (import overwrites existing)
+      Object.keys(imported).forEach(k => {
+        if (imported[k] && typeof imported[k] === 'object') {
+          notesData[k] = imported[k];
+        }
+      });
+      saveNotes();
+      renderTable();
+      showToast(`Imported ${Object.keys(imported).length} entries.`);
+    } catch(err) {
+      showToast('Error importing file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+// Reset
+function resetNotes() {
+  if (confirm('Delete ALL notes and statuses? This cannot be undone.')) {
+    notesData = {};
+    saveNotes();
+    renderTable();
+    showToast('All notes cleared.');
+  }
+}
+
+// Sorting
+let sortCol = null, sortAsc = true;
+document.querySelectorAll('th[data-col]').forEach(th => {
+  th.addEventListener('click', function() {
+    const col = this.dataset.col;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    document.querySelectorAll('th').forEach(h => h.classList.remove('sorted-asc','sorted-desc'));
+    this.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+    sortSuppliers(col, sortAsc);
+    renderTable();
+  });
+});
+function sortSuppliers(col, asc) {
+  SUPPLIERS.sort((a, b) => {
+    let va = a[col] || '', vb = b[col] || '';
+    if (col === 'china') { va = a.china_based ? '1' : '0'; vb = b.china_based ? '1' : '0'; }
+    else if (col === 'ships') { va = a.ships_to_china ? '1' : '0'; vb = b.ships_to_china ? '1' : '0'; }
+    else if (col === 'noChinaShip') { va = notesData[a.domain]?.noChinaShipping ? '1' : '0'; vb = notesData[b.domain]?.noChinaShipping ? '1' : '0'; }
+    else if (col === 'status') { va = notesData[a.domain]?.status || 'new'; vb = notesData[b.domain]?.status || 'new'; }
+    else if (col === 'price') { va = a.prices.toLowerCase(); vb = b.prices.toLowerCase(); }
+    else if (col === 'purity') { va = parseFloat(a.purity) || 0; vb = parseFloat(b.purity) || 0; }
+    else { va = String(va).toLowerCase(); vb = String(vb).toLowerCase(); }
+    if (typeof va === 'number' && typeof vb === 'number') return asc ? va - vb : vb - va;
+    return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+loadNotes();
+renderTable();
+</script>
+</body>
+</html>
