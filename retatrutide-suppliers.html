@@ -69,7 +69,7 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
 </head>
 <body>
 <h1>🧪 Retatrutide Supplier Database</h1>
-<p class="subtitle">Sources from Janoshik public test registry + live web research (22 Jul 2026). Buyer located in <b>China</b> — filter by "China-based" for domestic shipping.</p>
+<p class="subtitle">Curated database of Retatrutide suppliers from the Janoshik public test registry, B2B platforms (LookChem, ChemicalBook), and live web research. Filter by China-based for domestic shipping.</p>
 
 <div class="stats-bar" id="stats-bar"></div>
 
@@ -79,17 +79,16 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
   <label><input type="checkbox" id="shipChinaOnly"> Ships to China only</label>
   <select id="statusFilter">
     <option value="">All statuses</option>
-    <option value="new">🆕 New</option>
-    <option value="contacted">📩 Contacted</option>
-    <option value="replied">💬 Replied</option>
-    <option value="ordered">📦 Ordered</option>
+    <option value="contacted">📩 Responded</option>
+    <option value="replied">💬 In conversation</option>
+    <option value="ordered">📦 Shipped</option>
     <option value="dead">⛔ Dead</option>
   </select>
+  <button onclick="downloadDatabase()">⬇️ Download HTML</button>
   <button onclick="saveExport()">📥 Export Notes</button>
-  <button onclick="downloadDatabase()">⬇️ Download this HTML</button>
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importNotes(event)">
   <button onclick="document.getElementById('importFile').click()">📤 Import Notes</button>
-  <button onclick="resetNotes()">🗑️ Reset Notes</button>
+  <button onclick="resetNotes()">🗑️ Reset</button>
   <span id="rowCount" style="font-size:12px;color:#666;"></span>
 </div>
 
@@ -104,18 +103,14 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
 <th data-col="moq">MOQ</th>
 <th data-col="contact">Contact</th>
 <th data-col="ships">Ships to CN</th>
-<th data-col="noChinaShip">No CN ship</th>
 <th data-col="certs">Certs</th>
 <th data-col="purity">Janoshik</th>
-<th data-col="status">Status</th>
 <th data-col="details">Details</th>
 <th data-col="notes">Notes</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
-</div>
-
 <div class="ex-import">
   <span id="lastSaved" style="font-size:11px;color:#999;"></span>
 </div>
@@ -2085,8 +2080,6 @@ const SUPPLIERS = [
   },
 ];
 
-const STATUSES = ['new','contacted','replied','ordered','dead'];
-const STATUS_LABELS = {new:'🆕 New',contacted:'📩 Contacted',replied:'💬 Replied',ordered:'📦 Ordered',dead:'⛔ Dead'};
 
 let notesData = {};  // {domain: {status, notes, updated}}
 
@@ -2123,18 +2116,15 @@ function renderTable() {
 
   document.getElementById('rowCount').textContent = `${filtered.length} / ${SUPPLIERS.length} suppliers`;
   tbody.innerHTML = '';
-
   // Update stats
   const totalCn = SUPPLIERS.filter(s => s.china_based).length;
-  const totalShip = SUPPLIERS.filter(s => s.ships_to_china).length;
   const withPrice = SUPPLIERS.filter(s => s.prices && s.prices !== '—' && s.prices !== 'RFQ' && s.prices !== '').length;
-  document.getElementById('stats-bar').innerHTML = `
-    <span class="stat">📋 ${SUPPLIERS.length} suppliers</span>
-    <span class="stat cn">🇨🇳 ${totalCn} China-based</span>
-    <span class="stat">🚢 ${totalShip} ship to China</span>
-    <span class="stat">💰 ${withPrice} has prices</span>
-  `;
-
+  const withTest = SUPPLIERS.filter(s => s.test_count > 0).length;
+  document.getElementById('stats-bar').innerHTML =
+    '<span class="stat">📋 ' + SUPPLIERS.length + ' suppliers</span>' +
+    '<span class="stat cn">🇨🇳 ' + totalCn + ' China-based</span>' +
+    '<span class="stat">🔬 ' + withTest + ' Janoshik-tested</span>' +
+    '<span class="stat">💰 ' + withPrice + ' has prices</span>';
   filtered.forEach(s => {
     const entry = notesData[s.domain] || {};
     const status = entry.status || (s.outreach_status === 'contacted' ? 'contacted' : 'new');
@@ -2236,10 +2226,8 @@ function renderTable() {
       <td>${s.moq ? escapeHtml(s.moq) : '—'}</td>
       <td class="notes-cell">${contactHtml}</td>
       <td>${shipHtml}</td>
-      <td><label title="Mark after you confirm this supplier does not ship to mainland China"><input type="checkbox" ${noChinaShipping ? 'checked' : ''} onchange="updateNoChinaShipping('${s.domain}', this.checked)"> No</label></td>
       <td class="notes-cell">${certHtml}</td>
       <td>${purityHtml}</td>
-      <td><select class="status" data-domain="${s.domain}" onchange="updateStatus('${s.domain}', this.value)">${STATUSES.map(st => `<option value="${st}"${status===st?' selected':''}>${STATUS_LABELS[st]}</option>`).join('')}</select></td>
       <td class="details-cell">${detailHtml}</td>
       <td><textarea data-domain="${s.domain}" onchange="updateNotes('${s.domain}', this.value)" placeholder="Your notes...">${escapeHtml(ntxt)}</textarea></td>
     `;
