@@ -57,6 +57,9 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
 .badge-rfq { background: #ffc107; color: #333; }
 .badge-test { font-size: 10px; color: #666; cursor: help; border-bottom: 1px dotted #999; }
 .badge-recommended { background: #ffc107; color: #333; font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 700; margin-right: 2px; }
+.featured-row { background: #fff8dc !important; outline: 2px solid #ffc107; outline-offset: -2px; }
+.featured-row td { border-bottom-color: #ffc107; }
+.featured-badge { background: #ff8c00; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
 .batch-badge { background: #6f42c1; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; cursor: help; }
 .domain-link { font-weight: 600; color: #0d6efd; text-decoration: none; }
 .domain-link:hover { text-decoration: underline; }
@@ -2216,11 +2219,12 @@ function renderTable() {
       purityHtml = `<span class="badge-test" title="${s.test_count} tests on Janoshik">🔬${s.test_count} tests</span>`;
     }
 
+    const isFeatured = s.domain === 'aurobiopeptide.com';
     const tr = document.createElement('tr');
-    tr.className = noChinaShipping ? 'no-cn-ship' : cnClass;
+    tr.className = isFeatured ? 'featured-row' : (noChinaShipping ? 'no-cn-ship' : cnClass);
     tr.innerHTML = `
       <td>${domainHtml}</td>
-      <td><b>${s.company ? escapeHtml(s.company) : '—'}</b></td>
+      <td><b>${s.company ? escapeHtml(s.company) : '—'}</b>${isFeatured ? ' <span class="featured-badge">⭐ FEATURED</span>' : ''}</td>
       <td>${locHtml}</td>
       <td>${priceHtml}</td>
       <td>${s.moq ? escapeHtml(s.moq) : '—'}</td>
