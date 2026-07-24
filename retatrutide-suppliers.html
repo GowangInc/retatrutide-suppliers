@@ -56,6 +56,7 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
 .badge-ship { background: #17a2b8; color: #fff; }
 .badge-rfq { background: #ffc107; color: #333; }
 .badge-test { font-size: 10px; color: #666; cursor: help; border-bottom: 1px dotted #999; }
+.badge-recommended { background: #ffc107; color: #333; font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 700; margin-right: 2px; }
 .batch-badge { background: #6f42c1; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; cursor: help; }
 .domain-link { font-weight: 600; color: #0d6efd; text-decoration: none; }
 .domain-link:hover { text-decoration: underline; }
@@ -2192,9 +2193,13 @@ function renderTable() {
 
     // Details: show all research data without truncation.
     const detailBlocks = [];
-    if (s.notes) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Research:</span> ${escapeHtml(s.notes)}</div>`);
+    // Outreach status badges
     if (s.outreach_status === 'contacted') {
-      domainHtml += ` <span class="badge badge-contacted" title="${escapeHtml(s.outreach_detail)}">📨 Sent</span>`;
+      if (s.outreach_detail && s.outreach_detail.includes('Active')) {
+        domainHtml += ` <span class="badge-recommended" title="${escapeHtml(s.outreach_detail)}">⭐ Recommended</span>`;
+      } else {
+        domainHtml += ` <span class="badge badge-contacted" title="${escapeHtml(s.outreach_detail)}">📨 Sent</span>`;
+      }
     } else if (s.outreach_status === 'manual_captcha') {
       domainHtml += ` <span class="badge badge-captcha" title="${escapeHtml(s.outreach_detail)}">🔐 CAPTCHA</span>`;
     } else if (s.outreach_status === 'no_form') {
