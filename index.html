@@ -60,6 +60,7 @@ select.status { font-size: 11px; padding: 1px 4px; border-radius: 3px; border: 1
 .featured-row { background: #fff8dc !important; outline: 2px solid #ffc107; outline-offset: -2px; }
 .featured-row td { border-bottom-color: #ffc107; }
 .featured-badge { background: #ff8c00; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
+.related-badge { background: #6f42c1; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; font-weight: 600; margin-right: 2px; cursor: help; }
 .batch-badge { background: #6f42c1; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 3px; cursor: help; }
 .domain-link { font-weight: 600; color: #0d6efd; text-decoration: none; }
 .domain-link:hover { text-decoration: underline; }
@@ -141,8 +142,10 @@ const SUPPLIERS = [
     shipping_notes: "Global shipping mentioned on homepage; claims 50+ countries served. Ships to Southeast Asia, Middle East, Europe, South America, Africa. Domestic China shipping implied by Shenzhen base.",
     payment: "Credit/Debit cards, SEPA, Visa/Mastercard, WeChat Pay",
     batch_group: "",
+    related_domain: "novapeptide.shop",
+    relationship_note: "Shared publicly listed WhatsApp (+86 19103245495); ownership unverified",
     other_products: "Semaglutide, Tirzepatide, BPC-157, TB-500, Tesamorelin, Cagrilintide, GHK-Cu, NAD+, Glutathione, MOTS-c, Ipamorelin, LL-37, AOD-9604, Oxytocin Acetate, SNAP-8, Hyaluronic Acid, KLOW Blend, BAC Water",
-    notes: "Active conversation 2026-07-24. Quoted ¥1,730 (60mg×10 vials delivered Suzhou). Asked for COA/HPLC-MS. Has Janoshik test 157288 (RT20, 99.87%). Legitimate vendor — Shenzhen address, card payments, real COA library. Waiting on batch COA for 60mg before ordering. Payment: WeChat Pay accepted..",
+    notes: "Active conversation 2026-07-24. Quoted ¥1,730 (60mg×10 vials delivered Suzhou). Asked for COA/HPLC-MS. Has Janoshik test 157288 (RT20, 99.87%). Shenzhen address, card payments, real COA library. Waiting on batch COA for 60mg. Linked contact: novapeptide.shop uses the same publicly listed WhatsApp number (+86 191 0324 5495); relationship/ownership unverified.",
     outreach_status: "contacted",
     outreach_detail: "Active — in discussion",
     source_urls: ["https://www.aurobiopeptide.com/", "https://www.aurobiopeptide.com/shop/", "https://www.aurobiopeptide.com/product/retarutide/", "https://www.aurobiopeptide.com/about-us/", "https://www.aurobiopeptide.com/faqs-2/", "https://www.aurobiopeptide.com/contact-2/", "https://verify.janoshik.com/tests/157288-RT20_PQSMTQNEHEKC"],
@@ -1205,8 +1208,10 @@ const SUPPLIERS = [
     shipping_notes: "Express special line, door to door including customs clearance. Claims 7-15 days delivery. Reship if parcel lost. Worldwide shipping badge on site.",
     payment: "Western Union, T/T (bank transfer), BTC (Bitcoin), PayPal",
     batch_group: "",
+    related_domain: "aurobiopeptide.com",
+    relationship_note: "Shared publicly listed WhatsApp (+86 19103245495); ownership unverified",
     other_products: "tirzepatide, semaglutide, cagrilintide, TB-500, tesamorelin, and 3 other peptide products listed",
-    notes: "Contacted 2026-07-24. Waiting on reply.",
+    notes: "Contacted 2026-07-24. Waiting on reply. Linked contact: aurobiopeptide.com shares the same publicly listed WhatsApp number (+86 19103245495); relationship unverified.",
     outreach_status: "contacted",
     outreach_detail: "Contacted — waiting on reply",
     source_urls: ["https://novapeptide.shop/", "https://novapeptide.shop/product/retarutide/", "https://novapeptide.shop/contact/", "https://novapeptide.shop/products/", "https://verify.janoshik.com/tests/157289-RT20_4J2EREUANXUS"],
@@ -2197,6 +2202,10 @@ function renderTable() {
       domainHtml += ` <span class="badge badge-captcha" title="${escapeHtml(s.outreach_detail)}">🔐 CAPTCHA</span>`;
     } else if (s.outreach_status === 'no_form') {
       domainHtml += ` <span class="badge badge-no-form" title="${escapeHtml(s.outreach_detail)}">No form</span>`;
+    }
+    // Shared contact badge
+    if (s.related_domain) {
+      domainHtml += ` <a class="related-badge" href="https://${s.related_domain}" target="_blank" rel="noopener" title="Shared WhatsApp contact with ${s.related_domain}; ownership unverified. ${escapeHtml(s.relationship_note || '')}">🔗 ${s.related_domain}</a>`;
     }
     if (s.shipping_notes) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Shipping:</span> ${escapeHtml(s.shipping_notes)}</div>`);
     if (s.outreach_detail) detailBlocks.push(`<div class="detail-block"><span class="detail-label">Outreach:</span> ${escapeHtml(s.outreach_detail)}</div>`);
