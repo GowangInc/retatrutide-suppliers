@@ -1,0 +1,19 @@
+:root {
+  --paper: #f5f4ee;
+  --surface: #fffefa;
+  --ink: #242e29;
+  --muted: #626e65;
+  --line: #d9ddd2;
+  --line-strong: #879589;
+  --accent: #9f432d;
+  --accent-soft: #f8ece3;
+  --green: #315846;
+  --green-soft: #eaf0e6;
+  --warning: #95552a;
+  --warning-soft: #fbf0d9;
+  --danger: #9e3835;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+body[data-compound='retatrutide'] { --accent: #1b6259; --accent-soft: #e6eeea; }
